@@ -4,41 +4,54 @@ C:.
 |   .editorconfig
 |   .gitattributes
 |   .gitignore
-|   GoPostal.csproj
-|   GoPostal.sln
 |   LICENSE
 |   Mod.cs
+|   PostMaster.csproj
+|   PostMaster.sln
 |   README.md
 |   repo-tree.txt
 |   
 +---bin
-|   \---Debug
+
+
+C:\Users\kldan\source\repos\Postmaster>
+C:\Users\kldan\source\repos\Postmaster>
+
+C:\Users\kldan\source\repos\Postmaster>nux_x86_64.so
+|               PostMaster_mac_x86_64.bundle
+|               PostMaster_win_x86_64.dll
+|               PostMaster_win_x86_64.pdb
+|               
++---Library
+|       ilpp.pid
+|       
 +---Localization
 |       LocaleEN.cs
-|       LocaleJA.cs
 |       
 +---obj
-|   |   GoPostal.csproj.nuget.dgspec.json
-|   |   GoPostal.csproj.nuget.g.props
-|   |   GoPostal.csproj.nuget.g.targets
+|   |   PostMaster.csproj.nuget.dgspec.json
+|   |   PostMaster.csproj.nuget.g.props
+|   |   PostMaster.csproj.nuget.g.targets
 |   |   project.assets.json
 |   |   project.nuget.cache
 |   |   
 |   \---Debug
 |       \---net48
 |               .NETFramework,Version=v4.8.AssemblyAttributes.cs
-|               GoPostal.AssemblyInfo.cs
-|               GoPostal.AssemblyInfoInputs.cache
-|               GoPostal.assets.cache
-|               GoPostal.csproj.AssemblyReference.cache
-|               GoPostal.csproj.CoreCompileInputs.cache
-|               GoPostal.csproj.FileListAbsolute.txt
-|               GoPostal.GeneratedMSBuildEditorConfig.editorconfig
-|               GoPostal.sourcelink.json
+|               PostMaster.AssemblyInfo.cs
+|               PostMaster.AssemblyInfoInputs.cache
+|               PostMaster.assets.cache
+|               PostMaster.csproj.AssemblyReference.cache
+|               PostMaster.csproj.CoreCompileInputs.cache
+|               PostMaster.csproj.FileListAbsolute.txt
+|               PostMaster.dll
+|               PostMaster.GeneratedMSBuildEditorConfig.editorconfig
+|               PostMaster.pdb
+|               PostMaster.sourcelink.json
 |               
 +---Properties
+|   |   old-Thumbnail.png
 |   |   PublishConfiguration.xml
-|   |   Thumbnail.png
 |   |   
 |   \---PublishProfiles
 |           PublishNewMod.pubxml
@@ -52,5 +65,5 @@ C:.
 |       Settings.cs
 |       
 \---Systems
-        GoPostalSystem.cs
+        PostMasterSystem.cs
         

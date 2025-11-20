@@ -1,35 +1,31 @@
 // Mod.cs
-// Entry point for Go Postal [GP].
+// Entry point for PostMaster [PM].
 
-namespace GoPostal
+namespace PostMaster
 {
-    using System.Reflection;                   // AssemblyVersion
-    using Colossal;                            // IDictionarySource
-    using Colossal.IO.AssetDatabase;           // AssetDatabase
-    using Colossal.Logging;                    // ILog, LogManager
-    using Game;                                // UpdateSystem, SystemUpdatePhase
-    using Game.Modding;                        // IMod
-    using Game.SceneFlow;                      // GameManager
+    using System.Reflection;             // Assembly version
+    using Colossal;                      // IDictionarySource
+    using Colossal.IO.AssetDatabase;     // AssetDatabase.LoadSettings
+    using Colossal.Localization;         // LocalizationManager
+    using Colossal.Logging;              // ILog, LogManager
+    using Game;                          // UpdateSystem, SystemUpdatePhase
+    using Game.Modding;                  // IMod
+    using Game.SceneFlow;                // GameManager
 
     /// <summary>
-    /// Mod entry point for Go Postal [GP].
+    /// Mod entry point for PostMaster [PM].
     /// Registers settings, locales, and the ECS system.
     /// </summary>
     public sealed class Mod : IMod
     {
         // ---- PUBLIC CONSTANTS / METADATA ----
 
-        public const string ModId = "GoPostal";
-        public const string ModName = "Go Postal";
-        public const string ModTag = "[GP]";
-
-        // ---- PRIVATE STATE ----
-
-        private static bool s_BannerLogged;
-        private static bool s_ReapplyingLocale;
+        public const string ModId = "PostMaster";
+        public const string ModName = "PostMaster";
+        public const string ModTag = "[PM]";
 
         /// <summary>
-        /// Read &lt;Version&gt; from .csproj (3-part).
+        /// Read Version from .csproj (3-part).
         /// </summary>
         public static readonly string ModVersion =
             Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
@@ -48,17 +44,25 @@ namespace GoPostal
             get; private set;
         }
 
+        // ---- PRIVATE STATE ----
+
+        private static bool s_BannerLogged;
+
+        // --------------------------------------------------------------------
+        // IMod
+        // --------------------------------------------------------------------
+
         /// <summary>
         /// Called by the game during world initialization.
         /// </summary>
         /// <param name="updateSystem">Update system scheduler.</param>
         public void OnLoad(UpdateSystem updateSystem)
         {
-            // Metadata banner (once per session).
-            s_Log.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
+            // One-time banner.
             if (!s_BannerLogged)
             {
                 s_BannerLogged = true;
+                s_Log.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
             }
 
             GameManager? gameManager = GameManager.instance;
@@ -72,21 +76,19 @@ namespace GoPostal
             Setting setting = new Setting(this);
             Settings = setting;
 
-            // Register locales via helper
-            AddLocale("en-US", new LocaleEN(setting));
+            // Register locales.
+            AddLocaleSource("en-US", new LocaleEN(setting));
 
-            // Future locales – uncomment when you add LocaleXX classes:
-            // AddLocale("fr-FR", new LocaleFR(setting));
-            // AddLocale("de-DE", new LocaleDE(setting));
-            // AddLocale("es-ES", new LocaleES(setting));
-            // AddLocale("it-IT", new LocaleIT(setting));
-            // AddLocale("ja-JP", new LocaleJA(setting));
-            // AddLocale("ko-KR", new LocaleKO(setting));
-            // AddLocale("vi-VN", new LocaleVI(setting));
-            // AddLocale("pl-PL", new LocalePL(setting));
-            // AddLocale("pt-BR", new LocalePT_BR(setting));
-            // AddLocale("zh-HANS", new LocaleZH_CN(setting));
-            // AddLocale("zh-HANT", new LocaleZH_HANT(setting));
+            // Ready for future locales (uncomment once you add the files):
+            // AddLocaleSource("fr-FR",  new LocaleFR(setting));
+            // AddLocaleSource("de-DE",  new LocaleDE(setting));
+            // AddLocaleSource("es-ES",  new LocaleES(setting));
+            // AddLocaleSource("it-IT",  new LocaleIT(setting));
+            // AddLocaleSource("ja-JP",  new LocaleJA(setting));
+            // AddLocaleSource("ko-KR",  new LocaleKO(setting));
+            // AddLocaleSource("pt-BR",  new LocalePT_BR(setting));
+            // AddLocaleSource("zh-HANS", new LocaleZH_CN(setting));
+            // AddLocaleSource("zh-HANT", new LocaleZH_HANT(setting));
 
             // Load persisted settings or create defaults on first run.
             AssetDatabase.global.LoadSettings(ModId, setting, new Setting(this));
@@ -94,17 +96,8 @@ namespace GoPostal
             // Register in Options UI once we have locales.
             setting.RegisterInOptionsUI();
 
-            // Hook locale-change event so the Options UI remains consistent
-            // when the active language changes at runtime.
-            var localizationManager = gameManager.localizationManager;
-            if (localizationManager != null)
-            {
-                localizationManager.onActiveDictionaryChanged -= OnLocaleChanged;
-                localizationManager.onActiveDictionaryChanged += OnLocaleChanged;
-            }
-
             // Schedule the system before the vanilla postal system in the GameSimulation phase.
-            updateSystem.UpdateBefore<GoPostalSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateBefore<PostMasterSystem>(SystemUpdatePhase.GameSimulation);
         }
 
         /// <summary>
@@ -112,14 +105,7 @@ namespace GoPostal
         /// </summary>
         public void OnDispose()
         {
-            var gameManager = GameManager.instance;
-            var localizationManager = gameManager?.localizationManager;
-            if (localizationManager != null)
-            {
-                localizationManager.onActiveDictionaryChanged -= OnLocaleChanged;
-            }
-
-            s_Log.Info(nameof(OnDispose));
+            s_Log.Info("OnDispose");
 
             if (Settings != null)
             {
@@ -129,43 +115,34 @@ namespace GoPostal
         }
 
         // --------------------------------------------------------------------
-        // Localization helpers
+        // Localization helper
         // --------------------------------------------------------------------
 
         /// <summary>
-        /// Adds a locale source in a safe way.
+        /// Wrapper around LocalizationManager.AddSource that catches exceptions
+        /// so fragile localization mods can't crash us.
         /// </summary>
-        private static void AddLocale(string localeId, IDictionarySource source)
+        private static void AddLocaleSource(string localeId, IDictionarySource source)
         {
-            var lm = GameManager.instance?.localizationManager;
-            if (lm == null)
+            if (string.IsNullOrEmpty(localeId))
             {
-                s_Log.Warn("No LocalizationManager; cannot add locale source.");
                 return;
             }
 
-            lm.AddSource(localeId, source);
-        }
-
-        /// <summary>
-        /// Re-registers the Options UI when the active locale changes,
-        /// so all labels/descriptions stay in sync.
-        /// </summary>
-        private void OnLocaleChanged()
-        {
-            if (s_ReapplyingLocale)
+            LocalizationManager? lm = GameManager.instance?.localizationManager;
+            if (lm == null)
             {
-                return; // debounce re-entry
+                s_Log.Warn($"AddLocaleSource: No LocalizationManager; cannot add source for '{localeId}'.");
+                return;
             }
 
-            s_ReapplyingLocale = true;
             try
             {
-                Settings?.RegisterInOptionsUI();
+                lm.AddSource(localeId, source);
             }
-            finally
+            catch (System.Exception ex)
             {
-                s_ReapplyingLocale = false;
+                s_Log.Warn($"AddLocaleSource: AddSource for '{localeId}' failed: {ex.GetType().Name}: {ex.Message}");
             }
         }
     }

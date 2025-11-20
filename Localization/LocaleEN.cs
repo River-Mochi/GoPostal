@@ -1,14 +1,13 @@
 // Localization/LocaleEN.cs
-// English locale for Go Postal [GP].
+// English locale for PostMaster [PM].
 
-namespace GoPostal
+namespace PostMaster
 {
     using System.Collections.Generic;
     using Colossal;
 
     /// <summary>
-    /// English localization source for Go Postal [GP].
-    /// </summary>
+    /// English localization source for PostMaster [PM].</summary>
     public sealed class LocaleEN : IDictionarySource
     {
         private readonly Setting m_Setting;
@@ -32,7 +31,7 @@ namespace GoPostal
             return new Dictionary<string, string>
             {
                 // Mod title
-                { m_Setting.GetSettingsLocaleID(), "Go Postal [GP]" },
+                { m_Setting.GetSettingsLocaleID(), "PostMaster [PM]" },
 
                 // Tabs
                 { m_Setting.GetOptionTabLocaleID(Setting.kActionsTab), "Actions" },
@@ -40,246 +39,163 @@ namespace GoPostal
                 { m_Setting.GetOptionTabLocaleID(Setting.kAboutTab),   "About" },
 
                 // Groups (Actions tab)
-                { m_Setting.GetOptionGroupLocaleID(Setting.PostOfficeGroup),
-                    "Post office" },
-                { m_Setting.GetOptionGroupLocaleID(Setting.PostSortingFacilityGroup),
-                    "Sorting facility" },
-                { m_Setting.GetOptionGroupLocaleID(Setting.PostVanGroup),
-                    "Post vans & trucks" },
-                { m_Setting.GetOptionGroupLocaleID(Setting.ResetGroup),
-                    "Reset" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.PostOfficeGroup),          "Post office" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.PostVanGroup),             "Post vans & trucks" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.PostSortingFacilityGroup), "Sorting facility" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.ResetGroup),               "Reset" },
 
                 // Groups (Status tab)
-                { m_Setting.GetOptionGroupLocaleID(Setting.StatusSummaryGroup),
-                    "City scan" },
-                { m_Setting.GetOptionGroupLocaleID(Setting.StatusActivityGroup),
-                    "Last update" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.StatusSummaryGroup), "City scan" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.StatusActivityGroup), "Last update" },
 
                 // Groups (About tab)
-                { m_Setting.GetOptionGroupLocaleID(Setting.kAboutInfoGroup),
-                    "Info" },
-                { m_Setting.GetOptionGroupLocaleID(Setting.kAboutLinksGroup),
-                    "Links" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.kAboutInfoGroup),  "Info" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.kAboutLinksGroup), "Links" },
 
                 // ---- Post Office ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GetLocalMail)),
-                    "Get local mail when under threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GetLocalMail)),
-                    "When enabled, post offices automatically pull in local mail "
-                    + "if storage is below the threshold."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GetLocalMail)),
+                    "Magic local mail top-up" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GetLocalMail)),
+                    "When enabled, post offices \"magic\" in extra local mail if their storage is too low. "
+                    + "This does not spawn vans — the mail just appears in the building so it can be processed." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GettingThresholdPercentage)),
-                    "Local mail threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GettingThresholdPercentage)),
-                    "If local mail is below this percentage of capacity, the post office "
-                    + "pulls in more local mail."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GettingThresholdPercentage)),
+                    "Local mail threshold" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GettingThresholdPercentage)),
+                    "If local mail is below this percentage of capacity, the post office pulls in more local mail." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GettingPercentage)),
-                    "Local mail fetch amount"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GettingPercentage)),
-                    "Percentage of capacity to add when fetching local mail."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_GettingPercentage)),
+                    "Local mail fetch amount" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_GettingPercentage)),
+                    "Percentage of capacity to add when fetching local mail (magic top-up)." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_DisposeOverflow)),
-                    "Dispose overflow mail"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_DisposeOverflow)),
-                    "When enabled, overflow mail is removed once storage exceeds "
-                    + "the overflow percentage."
-                },
+                // Global overflow toggle (PO + PSF)
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FixMailOverflow)),
+                    "Fix mail overflow (magic cleanup)" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FixMailOverflow)),
+                    "When enabled, post offices and sorting facilities perform a small \"magic\" cleanup once "
+                    + "their overflow thresholds are reached: excess stored mail is treated as delivered and removed, "
+                    + "so buildings don’t get stuck full forever. Turn this off to keep pure vanilla overflow behavior." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_OverflowPercentage)),
-                    "Overflow threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_OverflowPercentage)),
-                    "When total mail reaches this percentage of capacity, "
-                    + "overflow handling is triggered."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PO_OverflowPercentage)),
+                    "Post office overflow threshold" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PO_OverflowPercentage)),
+                    "When total mail at post offices reaches this percentage of capacity, overflow handling is triggered. "
+                    + "With the default 90%, nothing happens until a post office is nearly full." },
 
-                // FixMailOverflow
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.FixMailOverflow)),
-                    "Fix mail overflow"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.FixMailOverflow)),
-                    "Post facilities sometimes stall when storage is nearly full. "
-                    + "This option clamps stored mail when over the threshold to keep "
-                    + "the facility from stalling."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_OverflowPercentage)),
+                    "Sorting overflow threshold" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_OverflowPercentage)),
+                    "When total mail at sorting facilities reaches this percentage of capacity, "
+                    + "overflow handling is triggered. With the default 90%, only very full facilities are touched." },
 
-                // ---- Sorting Facility ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GetUnsortedMail)),
-                    "Get unsorted mail when under threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GetUnsortedMail)),
-                    "When enabled, sorting facilities automatically pull in unsorted mail "
-                    + "if storage is below the threshold."
-                },
-
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GettingThresholdPercentage)),
-                    "Unsorted mail threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GettingThresholdPercentage)),
-                    "If unsorted mail is below this percentage of capacity, "
-                    + "the facility pulls in more unsorted mail."
-                },
-
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GettingPercentage)),
-                    "Unsorted mail fetch amount"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GettingPercentage)),
-                    "Percentage of capacity to add when fetching unsorted mail."
-                },
-
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_DisposeOverflow)),
-                    "Dispose overflow mail"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_DisposeOverflow)),
-                    "When enabled, overflow mail at sorting facilities is removed "
-                    + "once storage exceeds the overflow percentage."
-                },
-
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_OverflowPercentage)),
-                    "Overflow threshold"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_OverflowPercentage)),
-                    "When total mail reaches this percentage of capacity, "
-                    + "overflow handling is triggered."
-                },
-
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_SortingSpeedPercentage)),
-                    "Sorting speed"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_SortingSpeedPercentage)),
-                    "Sorting speed multiplier for postal sorting facilities. "
-                    + "Applies to the facility's base sorting rate (100% = vanilla)."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MoreDeliveries)),
+                    "Make more deliveries if needed" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.MoreDeliveries)),
+                    "Lets PostMaster be more eager about deliveries when needed. The intent is that if a postal building "
+                    + "is holding a backlog of local mail and still has free post vans available, it can request extra "
+                    + "delivery trips earlier than vanilla, helping post offices empty out instead of sitting nearly full. "
+                    + "If all vans are already in use, this toggle does nothing until a van becomes available again and "
+                    + "the game behaves like vanilla. (In the current build this option prepares the behavior and may not "
+                    + "yet change deliveries.)" },
 
                 // ---- Post Vans & Trucks ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.VanCapacityPercentage)),
-                    "Post van capacity"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.VanCapacityPercentage)),
-                    "Controls how many vans each postal building can dispatch and how much "
-                    + "mail each van can carry. 100% = vanilla."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ChangeCapacity)),
+                    "Change capacities" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ChangeCapacity)),
+                    "Enable this to modify van and truck capacities. When off, all capacity sliders below are "
+                    + "hidden and vanilla values are used." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.TruckCapacityPercentage)),
-                    "Post truck capacity"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.TruckCapacityPercentage)),
-                    "Controls how many post trucks each facility can dispatch. "
-                    + "100% = vanilla."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PostVanMailLoadPercentage)),
+                    "Post van mail load" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PostVanMailLoadPercentage)),
+                    "Controls how much mail each post van can carry. 100% = vanilla payload." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PostVanFleetSizePercentage)),
+                    "Post van fleet size" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PostVanFleetSizePercentage)),
+                    "Controls how many post vans each postal building can own and dispatch. 100% = vanilla fleet size." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.TruckCapacityPercentage)),
+                    "Post truck fleet size" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.TruckCapacityPercentage)),
+                    "Controls how many post trucks each sorting facility (and any other facility with trucks) "
+                    + "can own and dispatch. 100% = vanilla fleet size." },
+
+                // ---- Sorting Facility ----
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_SortingSpeedPercentage)),
+                    "Sorting speed" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_SortingSpeedPercentage)),
+                    "Sorting speed multiplier for postal sorting facilities. Applies to the facility's base sorting rate "
+                    + "(100% = vanilla)." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_StorageCapacityPercentage)),
+                    "Sorting storage capacity" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_StorageCapacityPercentage)),
+                    "Controls how much mail sorting facilities can store. Only facilities that actually sort mail "
+                    + "are affected (100% = vanilla)." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GetUnsortedMail)),
+                    "Magic unsorted mail top-up" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GetUnsortedMail)),
+                    "When enabled, sorting facilities \"magic\" in extra unsorted mail if storage is too low. "
+                    + "This keeps sorting lines busy without waiting for extra vans." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GettingThresholdPercentage)),
+                    "Unsorted mail threshold" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GettingThresholdPercentage)),
+                    "If unsorted mail is below this percentage of capacity, the facility pulls in more unsorted mail." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PSF_GettingPercentage)),
+                    "Unsorted mail fetch amount" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PSF_GettingPercentage)),
+                    "Percentage of capacity to add when fetching unsorted mail (magic top-up)." },
 
                 // ---- Reset ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetToVanilla)),
-                    "Reset to vanilla"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetToVanilla)),
-                    "Restore all postal settings to the game’s original behaviour."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetToVanilla)), "Reset to game defaults" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetToVanilla)),
+                    "Restore all postal settings to the game’s original behaviour." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetToRecommend)),
-                    "Reset to recommended"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetToRecommend)),
-                    "Apply Go Postal’s recommended postal settings."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetToRecommend)), "Reset to recommended" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetToRecommend)),
+                    "Apply PostMaster’s recommended postal settings." },
 
                 // ---- Status tab ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.StatusFacilitySummary)),
-                    "Facilities"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.StatusFacilitySummary)),
-                    "Summary of post offices and sorting facilities processed "
-                    + "in the last update."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.StatusFacilitySummary)), "" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.StatusFacilitySummary)),
+                    "Summary of post offices, post vans, sorting facilities, and post trucks processed in the last update." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.StatusLastActivity)),
-                    "Activity"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.StatusLastActivity)),
-                    "Counts of mail pulls and overflow cleanups performed in the last update."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.StatusCityMailSummary)), "City mail" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.StatusCityMailSummary)),
+                    "Shows recent city-wide mail flow.\n\n"
+                    + "Accumulated = how much mail citizens generated.\n"
+                    + "Processed   = how much mail the network actually handled.\n\n"
+                    + "If Processed is consistently higher than Accumulated, your postal network has enough capacity "
+                    + "and you could even lower the postal budget.\n"
+                    + "If Accumulated stays above Processed for long periods, the city is generating more mail than it "
+                    + "can handle — add more facilities, vans or tweak your settings." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.StatusLastActivity)), "Activity" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.StatusLastActivity)),
+                    "Counts of mail pulls and overflow cleanups performed in the last update." },
 
                 // ---- About tab: info ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.ModNameDisplay)),
-                    "Mod"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.ModNameDisplay)),
-                    "Display name of this mod."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ModNameDisplay)), "Mod" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ModNameDisplay)),
+                    "Display name of this mod." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.ModVersionDisplay)),
-                    "Version"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.ModVersionDisplay)),
-                    "Current mod version."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ModVersionDisplay)), "Version" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ModVersionDisplay)),
+                    "Current mod version." },
 
                 // ---- About tab: links ----
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.OpenGithub)),
-                    "GitHub"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.OpenGithub)),
-                    "Open the Go Postal GitHub page in a browser."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.OpenParadox)), "Paradox" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.OpenParadox)),
+                    "Open **Paradox** webpage for **PostMaster** and other mods." },
 
-                {
-                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.OpenDiscord)),
-                    "Discord"
-                },
-                {
-                    m_Setting.GetOptionDescLocaleID(nameof(Setting.OpenDiscord)),
-                    "Open the community Discord in a browser."
-                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.OpenDiscord)), "Discord" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.OpenDiscord)),
+                    "Open **Discord** feedback chat in a browser." },
             };
         }
 

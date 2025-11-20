@@ -1,29 +1,29 @@
-// Settings/Settings.cs
-// Options UI and configuration for Go Postal [GP].
+// Settings/Setting.cs
+// Options UI and configuration for PostMaster [PM].
 
-namespace GoPostal
+namespace PostMaster
 {
-    using System;                       // Exception handling (try/catch)
-    using Colossal.IO.AssetDatabase;    // [FileLocation]
-    using Game.Modding;                 // IMod, ModSetting
-    using Game.Settings;                // SettingsUI
+    using System;
+    using Colossal.IO.AssetDatabase;
+    using Game.Modding;
+    using Game.Settings;
     using Game.UI;
     using Unity.Entities;
-    using UnityEngine;                  // Application.OpenURL
+    using UnityEngine;
 
     /// <summary>
-    /// Settings definition and UI bindings for Go Postal [GP].
+    /// Settings definition and UI bindings for PostMaster [PM].
     /// </summary>
-    [FileLocation("ModsSettings/GoPostal/GoPostal")]
+    [FileLocation("ModsSettings/PostMaster/PostMaster")]
     [SettingsUITabOrder(
         kActionsTab,
         kStatusTab,
         kAboutTab)]
     [SettingsUIGroupOrder(
-        PostOfficeGroup,
-        PostSortingFacilityGroup,
-        PostVanGroup,
         ResetGroup,
+        PostOfficeGroup,
+        PostVanGroup,
+        PostSortingFacilityGroup,
         StatusSummaryGroup,
         StatusActivityGroup,
         kAboutInfoGroup,
@@ -63,8 +63,10 @@ namespace GoPostal
 
         // ---- LINKS ----
 
-        private const string kUrlDiscord = "https://discord.gg/HTav7ARPs2";
-        private const string kUrlGithub = "https://github.com/River-Mochi/GoPostal";
+        private const string kUrlParadox =
+            "https://mods.paradoxplaza.com/uploaded?orderBy=desc&sortBy=best&time=alltime";
+        private const string kUrlDiscord =
+            "https://discord.gg/HTav7ARPs2";
 
         /// <summary>
         /// Internal flag used to avoid resetting options on every load.
@@ -72,7 +74,8 @@ namespace GoPostal
         [SettingsUIHidden]
         public bool NotFirstTime
         {
-            get; set;
+            get;
+            set;
         }
 
         /// <summary>
@@ -98,165 +101,15 @@ namespace GoPostal
             base.Apply();
 
             World? world = World.DefaultGameObjectInjectionWorld;
-            GoPostalSystem? system = world?.GetExistingSystemManaged<GoPostalSystem>();
+            PostMasterSystem? system = world?.GetExistingSystemManaged<PostMasterSystem>();
             if (system != null)
             {
-                // Re-enable the system so it reacts to the latest settings.
                 system.Enabled = true;
             }
         }
 
         // --------------------------------------------------------------------
-        // ACTIONS TAB: POST OFFICE OPTIONS
-        // --------------------------------------------------------------------
-
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        public bool PO_GetLocalMail
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PO_GetLocalMail), true)]
-        public int PO_GettingThresholdPercentage
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PO_GetLocalMail), true)]
-        public int PO_GettingPercentage
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        public bool PO_DisposeOverflow
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PO_DisposeOverflow), true)]
-        public int PO_OverflowPercentage
-        {
-            get; set;
-        }
-
-        /// <summary>
-        /// Overflow fix toggle for post offices.
-        /// When enabled, overflow cleanup always runs once the threshold is reached.
-        /// </summary>
-        [SettingsUISection(kActionsTab, PostOfficeGroup)]
-        public bool FixMailOverflow
-        {
-            get; set;
-        }
-
-        // --------------------------------------------------------------------
-        // ACTIONS TAB: POST SORTING FACILITY OPTIONS
-        // --------------------------------------------------------------------
-
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        public bool PSF_GetUnsortedMail
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PSF_GetUnsortedMail), true)]
-        public int PSF_GettingThresholdPercentage
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PSF_GetUnsortedMail), true)]
-        public int PSF_GettingPercentage
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        public bool PSF_DisposeOverflow
-        {
-            get; set;
-        }
-
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        [SettingsUISlider(
-            min = 0, max = 100, step = 1,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(PSF_DisposeOverflow), true)]
-        public int PSF_OverflowPercentage
-        {
-            get; set;
-        }
-
-        /// <summary>
-        /// Sorting speed multiplier for sorting facilities (percent).
-        /// Applied to PostFacilityData.m_SortingRate (100% = vanilla).
-        /// </summary>
-        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
-        [SettingsUISlider(
-            min = 50, max = 300, step = 10,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        public int PSF_SortingSpeedPercentage
-        {
-            get; set;
-        }
-
-        // --------------------------------------------------------------------
-        // ACTIONS TAB: POST VAN / TRUCK OPTIONS
-        // --------------------------------------------------------------------
-
-        /// <summary>
-        /// Post van capacity multiplier (percent).
-        /// Applied to:
-        /// - PostFacilityData.m_PostVanCapacity (vans per facility)
-        /// - PostVanData.m_MailCapacity (payload per van)
-        /// 100% = vanilla.
-        /// </summary>
-        [SettingsUISection(kActionsTab, PostVanGroup)]
-        [SettingsUISlider(
-            min = 50, max = 300, step = 10,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        public int VanCapacityPercentage
-        {
-            get; set;
-        }
-
-        /// <summary>
-        /// Post truck capacity multiplier (percent).
-        /// Applied to PostFacilityData.m_PostTruckCapacity (trucks per facility).
-        /// 100% = vanilla.
-        /// </summary>
-        [SettingsUISection(kActionsTab, PostVanGroup)]
-        [SettingsUISlider(
-            min = 50, max = 300, step = 10,
-            scalarMultiplier = 1, unit = Unit.kPercentage)]
-        public int TruckCapacityPercentage
-        {
-            get; set;
-        }
-
-        // --------------------------------------------------------------------
-        // ACTIONS TAB: RESET BUTTONS
+        // ACTIONS TAB: RESET BUTTONS (top)
         // --------------------------------------------------------------------
 
         [SettingsUIButtonGroup(ResetGroup)]
@@ -294,16 +147,250 @@ namespace GoPostal
         }
 
         // --------------------------------------------------------------------
+        // ACTIONS TAB: POST OFFICE OPTIONS
+        // --------------------------------------------------------------------
+
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        public bool PO_GetLocalMail
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(PO_GetLocalMail), true)]
+        public int PO_GettingThresholdPercentage
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(PO_GetLocalMail), true)]
+        public int PO_GettingPercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Global overflow fix toggle (post offices + sorting facilities).
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        public bool FixMailOverflow
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(FixMailOverflow), true)]
+        public int PO_OverflowPercentage
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(FixMailOverflow), true)]
+        public int PSF_OverflowPercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Extra deliveries toggle: allow post offices to be more eager
+        /// about deliveries when needed and when vans are free.
+        /// (Currently UI-only until wired into the main system.)
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostOfficeGroup)]
+        public bool MoreDeliveries
+        {
+            get;
+            set;
+        }
+
+        // --------------------------------------------------------------------
+        // ACTIONS TAB: POST VAN OPTIONS (second)
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// Master toggle for changing postal capacities (vans, trucks, payload).
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostVanGroup)]
+        public bool ChangeCapacity
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Post van mail load multiplier (percent).
+        /// Applied to PostVanData.m_MailCapacity (payload per van).
+        /// 100% = vanilla; higher values let each van carry more mail.
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostVanGroup)]
+        [SettingsUISlider(
+            min = 100,
+            max = 500,
+            step = 10,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(ChangeCapacity), true)]
+        public int PostVanMailLoadPercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Post van fleet size multiplier (percent).
+        /// Applied to PostFacilityData.m_PostVanCapacity (vans per facility).
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostVanGroup)]
+        [SettingsUISlider(
+            min = 50,
+            max = 300,
+            step = 10,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(ChangeCapacity), true)]
+        public int PostVanFleetSizePercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Post truck fleet size multiplier (percent).
+        /// Applied to PostFacilityData.m_PostTruckCapacity (trucks per facility).
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostVanGroup)]
+        [SettingsUISlider(
+            min = 50,
+            max = 300,
+            step = 10,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(ChangeCapacity), true)]
+        public int TruckCapacityPercentage
+        {
+            get;
+            set;
+        }
+
+        // --------------------------------------------------------------------
+        // ACTIONS TAB: POST SORTING FACILITY OPTIONS (last)
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// Sorting speed multiplier for sorting facilities (percent).
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
+        [SettingsUISlider(
+            min = 50,
+            max = 500,
+            step = 10,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        public int PSF_SortingSpeedPercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Storage capacity multiplier for sorting facilities (percent).
+        /// Scales PostFacilityData.m_MailCapacity only for facilities that sort mail.
+        /// </summary>
+        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
+        [SettingsUISlider(
+            min = 50,
+            max = 300,
+            step = 10,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        public int PSF_StorageCapacityPercentage
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
+        public bool PSF_GetUnsortedMail
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(PSF_GetUnsortedMail), true)]
+        public int PSF_GettingThresholdPercentage
+        {
+            get;
+            set;
+        }
+
+        [SettingsUISection(kActionsTab, PostSortingFacilityGroup)]
+        [SettingsUISlider(
+            min = 0,
+            max = 100,
+            step = 1,
+            scalarMultiplier = 1,
+            unit = Unit.kPercentage)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(PSF_GetUnsortedMail), true)]
+        public int PSF_GettingPercentage
+        {
+            get;
+            set;
+        }
+
+        // --------------------------------------------------------------------
         // STATUS TAB
         // --------------------------------------------------------------------
 
         [SettingsUISection(kStatusTab, StatusSummaryGroup)]
         public string StatusFacilitySummary =>
-            GoPostalSystem.GetStatusSummary();
+            PostMasterSystem.GetStatusSummary();
+
+        [SettingsUISection(kStatusTab, StatusSummaryGroup)]
+        public string StatusCityMailSummary =>
+            PostMasterSystem.GetStatusCityMail();
 
         [SettingsUISection(kStatusTab, StatusActivityGroup)]
         public string StatusLastActivity =>
-            GoPostalSystem.GetStatusActivity();
+            PostMasterSystem.GetStatusActivity();
 
         // --------------------------------------------------------------------
         // ABOUT TAB: INFO
@@ -322,7 +409,7 @@ namespace GoPostal
         [SettingsUIButtonGroup(kAboutLinksGroup)]
         [SettingsUIButton]
         [SettingsUISection(kAboutTab, kAboutLinksGroup)]
-        public bool OpenGithub
+        public bool OpenParadox
         {
             set
             {
@@ -331,7 +418,7 @@ namespace GoPostal
                     return;
                 }
 
-                TryOpenUrl(kUrlGithub);
+                TryOpenUrl(kUrlParadox);
             }
         }
 
@@ -360,23 +447,30 @@ namespace GoPostal
         /// </summary>
         public override void SetDefaults()
         {
-            // Recommended defaults (mod behavior).
-            PO_GetLocalMail = false;
+            // Post offices: auto-get local mail when low (magic top-up).
+            PO_GetLocalMail = true;
             PO_GettingThresholdPercentage = 2;
-            PO_GettingPercentage = 20;
-            PO_DisposeOverflow = true;
-            PO_OverflowPercentage = 80;
-            FixMailOverflow = true; // Default: fix the overflow behavior.
+            PO_GettingPercentage = 15;
 
+            // Global overflow fix for PO + sorting (magic cleanup).
+            // Default thresholds: 90% so nothing happens until buildings are nearly full.
+            FixMailOverflow = true;
+            PO_OverflowPercentage = 90;
+            PSF_OverflowPercentage = 90;
+
+            // Sorting facilities: auto-get unsorted mail when low (magic top-up).
             PSF_GetUnsortedMail = true;
             PSF_GettingThresholdPercentage = 2;
-            PSF_GettingPercentage = 20;
-            PSF_DisposeOverflow = true;
-            PSF_OverflowPercentage = 80;
+            PSF_GettingPercentage = 15;
 
             PSF_SortingSpeedPercentage = 100;
+            PSF_StorageCapacityPercentage = 100;
 
-            VanCapacityPercentage = 100;
+            // Capacities enabled by default.
+            ChangeCapacity = true;
+            MoreDeliveries = true; // recommended: allow extra deliveries when needed (future behavior)
+            PostVanMailLoadPercentage = 100;
+            PostVanFleetSizePercentage = 100;
             TruckCapacityPercentage = 100;
         }
 
@@ -385,22 +479,28 @@ namespace GoPostal
         /// </summary>
         public void SetToVanilla()
         {
-            // Vanilla-like behavior: no auto get, no overflow disposal, no bug fix.
+            // Vanilla-like behavior: no auto gets, no overflow cleanup, vanilla capacities.
             PO_GetLocalMail = false;
             PO_GettingThresholdPercentage = 2;
-            PO_GettingPercentage = 20;
-            PO_DisposeOverflow = false;
-            PO_OverflowPercentage = 80;
+            PO_GettingPercentage = 15;
+
             FixMailOverflow = false;
+            // Thresholds kept high so that if player later turns this on under "vanilla" preset,
+            // cleanup only kicks in when buildings are nearly full.
+            PO_OverflowPercentage = 90;
+            PSF_OverflowPercentage = 90;
 
             PSF_GetUnsortedMail = false;
             PSF_GettingThresholdPercentage = 2;
-            PSF_GettingPercentage = 20;
-            PSF_DisposeOverflow = false;
-            PSF_OverflowPercentage = 80;
+            PSF_GettingPercentage = 15;
 
             PSF_SortingSpeedPercentage = 100;
-            VanCapacityPercentage = 100;
+            PSF_StorageCapacityPercentage = 100;
+
+            ChangeCapacity = false;
+            MoreDeliveries = false;
+            PostVanMailLoadPercentage = 100;
+            PostVanFleetSizePercentage = 100;
             TruckCapacityPercentage = 100;
         }
 
