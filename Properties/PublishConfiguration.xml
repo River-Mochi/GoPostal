@@ -1,10 +1,10 @@
 ﻿<Publish>
   <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-  <ModId Value="" />
+  <ModId Value="125343" />
   <!--Name of the mod to display to players-->
   <DisplayName Value="Magic Mail" />
   <!--Short description of the mod-->
-  <ShortDescription Value="Post office fixes, tweaks, and capacity controls." />
+  <ShortDescription Value="Post office mail fixes, tweaks, and capacity controls." />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
   <LongDescription>
 ## Magic Mail [MM]
@@ -49,16 +49,18 @@ preset.
 - Inspired by Infixo's original Postal Helper
 - BugsyG - testing
 
+tags: mail bug fixes, post van, post truck, delivery
+
   </LongDescription>
   <!--Thumbnail-->
   <Thumbnail Value="Properties/Images/10Thumbnail.png" />
 <!-- Screenshot, can be set multiple times -->
 <Screenshot Value="Properties/Images/20-image-mm-EN.jpg" />
-<Screenshot Value="Properties/30-image-mm-EN.jpg" />
-<Screenshot Value="Properties/40-image-mm-EN.jpg" />
-<Screenshot Value="Properties/50-image-mm-EN.jpg" />
-<Screenshot Value="Properties/60-image-mm-FR.jpg" />
-<Screenshot Value="Properties/70-image-mm-ZH_CN.jpg" />
+<Screenshot Value="Properties/Images/30-image-mm-EN.jpg" />
+<Screenshot Value="Properties/Images/40-image-mm-EN.jpg" />
+<Screenshot Value="Properties/Images/50-image-mm-EN.jpg" />
+<Screenshot Value="Properties/Images/60-image-mm-FR.jpg" />
+<Screenshot Value="Properties/Images/70-image-mm-ZH_CN.jpg" />
   <Screenshot Value="" />
   <!--Tag, can be set multiple times-->
   <Tag Value="Code Mod" />
@@ -72,6 +74,7 @@ preset.
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
+- add images
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
