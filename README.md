@@ -190,7 +190,7 @@ is already running fine without them.
 
 ## 6. “Magic” vs “non-magic” features
 
-**Magic / cheat-like behaviour:**
+**Magic / instant automatic**
 
 - **Fix low Local mail** (post offices)  
   Spawns Local Mail directly into the building when storage is too low.
