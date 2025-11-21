@@ -1,20 +1,18 @@
-// Systems/PostMasterSystem.cs
+// Systems/MagicPostMasterSystem.cs
 // Main ECS system that tweaks postal facility capacities, van payloads,
 // and handles optional mail overflow cleanup.
 // Also exposes city-wide mail stats via MailAccumulationSystem.
 
-namespace PostMaster
+namespace MagicPostMaster
 {
     using System.Collections.Generic;
     using Colossal.Entities;
     using Game;
-    using Game.Buildings;
     using Game.Common;
     using Game.Economy;
     using Game.Prefabs;
     using Game.Simulation;
     using Game.Tools;
-    using Game.Vehicles;
     using Unity.Collections;
     using Unity.Entities;
     using Unity.Mathematics;
@@ -24,7 +22,7 @@ namespace PostMaster
     /// post van mail payloads, and optional overflow cleanup.
     /// Also reads city-wide mail stats from MailAccumulationSystem.
     /// </summary>
-    public partial class PostMasterSystem : GameSystemBase
+    public partial class MagicMailSystem : GameSystemBase
     {
         private EntityQuery m_PostFacilitiesQuery;
         private EntityQuery m_PostVanPrefabsQuery;
@@ -173,7 +171,7 @@ namespace PostMaster
             // Try to grab the vanilla MailAccumulationSystem so we can surface its stats.
             TryResolveMailAccumulationSystem();
 
-            Mod.s_Log.Info("PostMasterSystem created.");
+            Mod.s_Log.Info("MagicPostMasterSystem created.");
         }
 
         /// <summary>
@@ -215,7 +213,7 @@ namespace PostMaster
             int totalPostTruckCapacity = 0;
 
 #if DEBUG
-            Mod.s_Log.Info($"PostMasterSystem.OnUpdate: {facilityCount} post facilities");
+            Mod.s_Log.Info($"MagicPostMasterSystem.OnUpdate: {facilityCount} post facilities");
 #endif
 
             foreach (Entity postEntity in postEntities)

@@ -1,289 +1,230 @@
-﻿# PostMaster [PM]
+﻿# Magic PostMaster [MPM]
 
-PostMaster helps the city’s postal system work more smoothly and gives you more
-control over how post offices and sorting facilities work.
+Magic PostMaster helps Cities: Skylines II’s postal system work more smoothly and gives more
+control over how post offices and sorting facilities behave.
 
 It can:
-- Top up mail at struggling post offices and sorting facilities.
-- Increase post van payload and fleet sizes.
-- Increase sorting speed and storage for sorting facilities.
-- Trim overflowing mail buffers so facilities don’t stall.
-- Surface simple city-wide mail stats in the options UI.
 
-You can keep it close to vanilla or push the system much harder – all sliders
-are optional and can be reset to game defaults at any time.
+- Top up **Local Mail** at struggling post offices.
+- Top up **Unsorted Mail** at sorting facilities.
+- Trim overflowing mail buffers so facilities don’t stall.
+- Increase post van payload and fleet sizes.
+- Increase post truck fleet sizes.
+- Boost sorting speed and storage for sorting facilities.
+- Show simple city-wide mail stats in the options UI.
+
+Everything is optional: sliders can be turned off, and settings can always be reset
+back to game defaults or to a recommended preset.
 
 ---
 
-## What it does
+## 1. Post offices – keep “mail to deliver” available
 
-### 1. Post offices – keep “mail to deliver” from running dry
+**Goal:** Reduce the *“Unreliable mail service”* happiness penalty by keeping post offices
+supplied with Local Mail to deliver.
 
-**Goal:** Avoid the *“Unreliable mail service”* happiness malus by keeping
-post offices supplied with local mail to deliver.
+**Options (Actions → Post office):**
 
-Options (Actions → *Post office* section):
-
-- **Get local mail when it's too low**  
-  When enabled, each post office checks its own local mail storage.  
-  If it’s below a configurable threshold, the mod **adds a bit of local mail**
-  directly into that building’s storage (no van trip required).
+- **Fix low Local mail**  
+  When enabled, each post office checks its own Local Mail storage.  
+  If it falls below a threshold, the mod **adds extra Local Mail** directly into the
+  building’s buffer (no van trip required), so it has something to deliver.
 
 - **Local mail threshold (%)**  
-  If local mail is below this % of capacity, the top-up triggers.
+  If Local Mail is below this percentage of the building’s capacity, the top-up triggers.
 
 - **Local mail fetch amount (%)**  
-  How much mail to add (as a % of capacity) when the top-up triggers.
+  How much Local Mail to add, as a percentage of the building’s capacity, when a top-up
+  happens.
 
-This behaviour is the modernized version of the original Postal Helper:
-instead of hard-coded “4000 units”, you control both the threshold and the
-amount.
+This is a configurable version of the original “Postal Helper” behaviour: instead of a
+fixed amount, both the threshold and amount are under user control.
 
-> ⚠️ This is a “magical” helper: it spawns extra local mail in the post office
-> without simulating a van trip. Use it as a band-aid for transfer problems.
+> ⚠️ This is a “magic” helper: Local Mail is spawned directly in the post office
+> without simulating a transfer.
 
 ---
 
-### 2. Sorting facilities – never starve the sorter
+## 2. Sorting facilities – keep the sorter busy
 
-**Goal:** Keep sorting facilities busy so they can feed post offices with
-sorted mail.
+**Goal:** Prevent sorting facilities from sitting idle because they have no Unsorted Mail to process.
 
-Options (Actions → *Sorting facility* section):
+**Options (Actions → Sorting facility):**
 
-- **Get unsorted mail when it's too low**  
-  When enabled, sorting facilities top up their own **unsorted mail** if it
-  drops below a threshold.
+- **Fix low unsorted mail**  
+  When enabled, a sorting facility checks its Unsorted Mail storage.  
+  If it falls below a threshold, the mod **adds extra Unsorted Mail** into the facility.
 
 - **Unsorted mail threshold (%)**  
-  Below this %, the facility pulls in more unsorted mail.
+  If Unsorted Mail is below this percentage of capacity, the facility triggers a top-up.
 
 - **Unsorted mail fetch amount (%)**  
-  How much unsorted mail to add (as a % of capacity) when a top-up happens.
+  How much Unsorted Mail to add, as a percentage of capacity, when a top-up happens.
 
-Like the post office option, this is also a “magical” helper:
-it simulates extra incoming unsorted mail to keep the sorter from going idle.
+This is also “magic”: Unsorted Mail appears in the facility to keep the sorting line busy
+without waiting for additional trucks or outside connections.
 
 ---
 
-### 3. Fix mail overflow (post offices + sorting)
+## 3. Fix mail overflow (post offices + sorting)
 
-**Goal:** Prevent facilities from becoming so overfilled with mail that they
-effectively stall.
+**Goal:** Stop postal buildings from becoming permanently overfilled with mail and stalling.
 
-Options (Actions → *Post office* section):
+Both **post offices** and **sorting facilities** use three stored resources:
 
-- **Fix mail overflow (PO + sorting)**  
-  One global toggle. When on, both post offices and sorting facilities will
-  **trim back** their stored mail if they exceed configurable overflow
-  thresholds.
+- Local Mail  
+- Outgoing Mail  
+- Unsorted Mail  
+
+When enabled, the overflow fixer looks at the **total** of all three.
+
+**Options (Actions → Post office):**
+
+- **Fix mail overflow**  
+  Global toggle. When on, both post offices and sorting facilities trim their stored mail
+  if they exceed configurable overflow thresholds.
 
 - **Post office overflow threshold (%)**  
-  If the *total* of local + outgoing + unsorted mail at a post office exceeds
-  this %, the mod clamps it back down.
+  If total stored mail (Local + Outgoing + Unsorted) at a post office exceeds this
+  percentage of its capacity, a cleanup is performed.
 
 - **Sorting overflow threshold (%)**  
-  Same idea, but for sorting facilities.
+  Same logic applied to sorting facilities.
 
-How it trims:
+**How trimming works (both building types):**
 
-- The mod looks at the total mail vs capacity.
-- If over the threshold, it computes a **target total** (e.g. 80% of capacity)
-  and **reduces all three mail types proportionally** so that:
-  - Ratios between local / outgoing / unsorted stay about the same,
-  - Total storage drops back to something safe.
+- The current total mail is compared to capacity.  
+- If total mail exceeds the building’s overflow threshold, a **target total** is computed  
+  (for example, capacity 10 000 and threshold 85% ⇒ target total 8 500).
+- All three mail types (Local, Outgoing, Unsorted) are **scaled down proportionally** so:
+  - Their ratios stay roughly the same, and  
+  - The new total is pulled down toward the target.
 
-This replaces the original Postal Helper’s hard-coded overflow behaviour and
-gives you control over both the on/off switch and the thresholds.
+In practical terms, this treats some stored mail as “delivered/processed” so the building
+can start working again instead of staying clogged forever.
 
-> 🔧 This also counts as “magical”: the mod **deletes some mail** when buffers
-> are overfull to keep facilities from locking up.
+> 🔧 This is also “magic”: some mail is deleted to prevent permanent congestion.
 
 ---
 
-### 4. Vans, trucks, and sorting power
+## 4. Vans, trucks, and sorting power
 
-**Goal:** Let you scale how powerful the postal network is without editing
-game files.
+**Goal:** Adjust the strength of the postal network without editing game files.
 
-Options (Actions → *Post vans & trucks* section):
+### 4.1 Post vans & trucks
+
+**Options (Actions → Post vans & trucks):**
 
 - **Change capacities**  
-  Master toggle. When off, all sliders below are ignored and the game behaves
-  like vanilla.
+  Master toggle. When off, the game uses pure vanilla values and hides the sliders below.
+  When on, the sliders override the vanilla capacities.
 
 - **Post van mail load (%)**  
-  Multiplier for **how much mail a single post van can carry**  
+  Multiplier for how much mail a single post van can carry  
   (`PostVanData.m_MailCapacity`).  
-  - 100% = vanilla payload (e.g. 2t)  
-  - Higher values let each van haul more mail (e.g. 300% → 6t).
+  - 100% = vanilla payload.  
+  - Higher values allow each van to carry more mail.
 
 - **Post van fleet size (%)**  
-  Multiplier for **how many post vans each building can own**  
+  Multiplier for how many post vans each postal building can own  
   (`PostFacilityData.m_PostVanCapacity`).  
-  - Applies to post offices and any other facility with vans.
+  - Applies to post offices and other post facilities using vans.
 
 - **Post truck fleet size (%)**  
-  Multiplier for **how many post trucks sorting facilities can own**  
+  Multiplier for how many post trucks each sorting facility can own  
   (`PostFacilityData.m_PostTruckCapacity`).  
-  - Mainly affects sorting facilities and any prefab with post trucks.
+  - Mainly affects sorting facilities and other prefabs with post trucks.
 
-Options (Actions → *Sorting facility* section):
+### 4.2 Sorting facilities
+
+**Options (Actions → Sorting facility):**
 
 - **Sorting speed (%)**  
-  Multiplier for **sorting throughput** at sorting facilities  
-  (`PostFacilityData.m_SortingRate`).
+  Multiplier for the facility’s sorting throughput  
+  (the game’s `m_SortingRate` value).  
+  - 100% = vanilla sorting speed.  
+  - Higher values let a sorting facility process more mail per tick.
 
 - **Sorting storage capacity (%)**  
-  Multiplier for **storage** at sorting facilities  
-  (`PostFacilityData.m_MailCapacity`, but only where the facility
-  actually sorts mail).
+  Multiplier for how much mail a sorting facility can store  
+  (`PostFacilityData.m_MailCapacity`, but only for facilities that actually sort).
 
-These sliders are non-magical in the sense that they just make facilities
-bigger/faster. They don’t invent mail on their own.
+These capacity changes are non-magical: they simply increase or decrease how strong the
+network is. No mail is created or destroyed by these sliders alone.
 
 ---
 
-### 5. Status tab: quick city-level overview
+## 5. Status tab – quick city overview
 
-Options (Status tab):
+The **Status** tab is read-only and reflects the current state of the city.
+
+**Groups:**
 
 - **City scan**  
-  Shows a one-line summary like:
-
-  > `6 post offices | 55 post-vans | 1 sort building | 5 post trucks`
-
-  This is based on the *current* capacities after your sliders are applied.
+  Shows a one-line summary, for example:  
+  `6 post offices | 55 post-vans | 1 sort building | 5 post trucks`  
+  These counts reflect the effective capacities after sliders are applied.
 
 - **City mail**  
-  Uses the vanilla `MailAccumulationSystem` to show:
+  Uses the vanilla `MailAccumulationSystem` to summarize recent city-wide mail flow, for example:  
+  `Monthly   168,192 accumulated | 277,759 processed`
 
-  > `Monthly 168,192 accumulated | 277,759 processed`
+  - **Accumulated** = how much mail citizens generated in the recent window.  
+  - **Processed**   = how much mail the network actually handled.
 
-  - **Accumulated** = how much new mail the city generated in the last
-    measurement window.
-  - **Processed** = how much mail was handled / delivered / resolved.
-
-  If *processed* stays higher than *accumulated* over time, your postal system
-  has enough capacity. If *accumulated* is often higher, the city is
-  generating more mail than the system can handle.
+  If **Processed** stays above **Accumulated** over time, the postal network has
+  enough capacity and the postal budget could potentially be reduced.  
+  If **Accumulated** consistently exceeds **Processed**, the city is generating more
+  mail than the network can handle and more capacity or different settings are needed.
 
 - **Activity**  
-  Shows how many local-mail top-ups, unsorted-mail top-ups and overflow
-  cleanups were performed in the last update.
+  Shows counts for:
+  - Local-mail top-ups at post offices.  
+  - Unsorted-mail top-ups at sorting facilities.  
+  - Overflow cleanups at both building types.
+
+This is useful for checking whether the “magic” helpers are doing anything or if the city
+is already running fine without them.
 
 ---
 
-## “Magic” vs “non-magic” features
+## 6. “Magic” vs “non-magic” features
 
-More “magic” / cheat-like:
+**Magic / cheat-like behaviour:**
 
-- **Local mail top-up** (Get local mail when low)  
-  Spawns extra local mail directly into a post office.
+- **Fix low Local mail** (post offices)  
+  Spawns Local Mail directly into the building when storage is too low.
 
-- **Unsorted mail top-up** (Get unsorted mail when low)  
-  Spawns extra unsorted mail into sorting facilities.
+- **Fix low unsorted mail** (sorting facilities)  
+  Spawns Unsorted Mail directly into the facility when storage is too low.
 
-- **Overflow cleanup**  
-  Deletes excess stored mail above your overflow thresholds.
+- **Fix mail overflow**  
+  Deletes excess stored mail above chosen thresholds to keep buildings from blocking.
 
-Less “magic”, more like realistic tuning:
+**More realistic tuning:**
 
-- **Van payload slider** (more tons per van).
-- **Van / truck fleet size sliders**.
-- **Sorting speed and storage sliders**.
-- **Status tab**, **city mail stats** (purely read-only).
-
----
-
-## Debug “effective settings” string – do you need it?
-
-You’re right:
-
-- You can already **click a van** and see its payload (e.g. 6t instead of 2t).
-- You can **click a post office** and see the new van / truck fleet size.
-
-So a “debug string” that repeats:
-
-> “Post vans: 6t payload, 15 vans per PO, 5 trucks per sorter…”
-
-…is *purely optional*. It was just a quality-of-life idea for people who never
-open building/vehicle info panels.
-
-We can:
-
-- Drop it completely, or
-- Keep it only behind `#if DEBUG` if you ever want a quick sanity check.
+- Post van mail load slider.  
+- Post van fleet size slider.  
+- Post truck fleet size slider.  
+- Sorting speed slider.  
+- Sorting storage capacity slider.  
+- Status / City mail information (purely observational).
 
 ---
 
-## 8. What exactly still matches the original Postal Helper README?
+## 7. Safety
 
-From your old README:
+- Does **not** patch game DLLs directly.  
+- Only changes prefab capacities and building resource buffers at runtime.  
+- Does **not** permanently modify the save file structure.
 
-> - Post Office gets Mail to Deliver when in critical need.  
-> - Post Sorting Office gets Unsorted Mail when in critical need.
+It is safe to:
 
-✅ Still basically correct, but now:
+- Disable the mod in the launcher, or  
+- Unsubscribe from the mod.
 
-- “critical need” is configurable via thresholds and fetch amounts.
-- We call the resources Local Mail / Unsorted Mail in the code.
+On the next load without the mod:
 
-> - If your postal infrastructure is working good and efficient then this mod will simply do nothing :)
-
-Now it will **always**:
-
-- Scale capacities if `Change capacities` is on.
-- Trim overflow if `Fix mail overflow` is on.
-
-So the “does nothing when things are fine” line is not quite true anymore —
-but the “magic top-ups” are still only used when thresholds are crossed.
-
----
-
-## 9. Idea for “2 / 20 vans out” (not enough vans dispatched)
-
-You asked:
-
-> what was the idea to help fix problem complaint where not enough delivery vans go out because buildings did not request?
-
-The main vanilla logic is:
-
-- **Buildings** (`MailAccumulationSystem.MailAccumulationJob.RequestPostVanIfNeeded`):
-  - Compute `num` as:
-    - `receivingMail` or `max(sendingMail, receivingMail)` depending on `m_RequireCollect`.
-  - Only request a van if:
-
-    ```csharp
-    if (num < m_PostConfigurationData.m_MailAccumulationTolerance)
-        return;
-    ```
-
-  - Then create a `PostVanRequest` with `Deliver` and sometimes `Collect`.
-
-- **Mailboxes** (`MailBoxSystem.RequestPostVanIfNeeded`):
-  - Only ever request **Collect** (since mailboxes don’t receive deliveries).
-
-So when players see “2 / 20 vans out”:
-
-- Usually it’s because **most buildings are under the tolerance** and never create requests,
-- Not because GetVehicleCapacity is wrong *by itself*.
-
-Possible non-Harmony fix ideas (not implemented yet):
-
-1. **Lower global tolerance**  
-   - From PostMaster, read the `PostConfigurationData` singleton and adjust
-     `m_MailAccumulationTolerance` based on a slider.
-   - Lower tolerance → more buildings qualify to request vans.
-
-2. **Boost perceived mail amount**  
-   - Before `MailAccumulationJob` runs, inflate `MailProducer`’s pending mail
-     slightly so `num` crosses the tolerance more often.
-   - This is more intrusive and risks weird side effects.
-
-Right now, PostMaster **does not** touch these systems:
-
-- We don’t modify `MailBoxSystem` or `MailAccumulationSystem`.
-- We don’t create our own `PostVanRequest` entities.
-- We just adjust capacities + do top-ups / overflow trims.
-
+- Facilities return to the game’s default capacities.  
+- Any “magic” mail that was added or removed only existed in the simulation at the
+  time and does not corrupt the save.

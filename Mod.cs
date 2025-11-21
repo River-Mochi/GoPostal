@@ -1,7 +1,7 @@
 // Mod.cs
-// Entry point for PostMaster [PM].
+// Entry point for MagicPostMaster [MPM].
 
-namespace PostMaster
+namespace MagicPostMaster
 {
     using System.Reflection;             // Assembly version
     using Colossal;                      // IDictionarySource
@@ -13,16 +13,16 @@ namespace PostMaster
     using Game.SceneFlow;                // GameManager
 
     /// <summary>
-    /// Mod entry point for PostMaster [PM].
+    /// Mod entry point for MagicPostMaster [MPM].
     /// Registers settings, locales, and the ECS system.
     /// </summary>
     public sealed class Mod : IMod
     {
         // ---- PUBLIC CONSTANTS / METADATA ----
 
-        public const string ModId = "PostMaster";
-        public const string ModName = "PostMaster";
-        public const string ModTag = "[PM]";
+        public const string ModId = "MagicPostMaster";
+        public const string ModName = "Magic PostMaster";
+        public const string ModTag = "[MPM]";
 
         /// <summary>
         /// Read Version from .csproj (3-part).
@@ -80,14 +80,14 @@ namespace PostMaster
             AddLocaleSource("en-US", new LocaleEN(setting));
 
             // Ready for future locales (uncomment once you add the files):
-            // AddLocaleSource("fr-FR",  new LocaleFR(setting));
-            // AddLocaleSource("de-DE",  new LocaleDE(setting));
-            // AddLocaleSource("es-ES",  new LocaleES(setting));
+                AddLocaleSource("de-DE", new LocaleDE(setting));
+                AddLocaleSource("fr-FR",  new LocaleFR(setting));
+                AddLocaleSource("es-ES",  new LocaleES(setting));
             // AddLocaleSource("it-IT",  new LocaleIT(setting));
             // AddLocaleSource("ja-JP",  new LocaleJA(setting));
             // AddLocaleSource("ko-KR",  new LocaleKO(setting));
             // AddLocaleSource("pt-BR",  new LocalePT_BR(setting));
-            // AddLocaleSource("zh-HANS", new LocaleZH_CN(setting));
+                AddLocaleSource("zh-HANS", new LocaleZH_CN(setting));
             // AddLocaleSource("zh-HANT", new LocaleZH_HANT(setting));
 
             // Load persisted settings or create defaults on first run.
@@ -97,7 +97,7 @@ namespace PostMaster
             setting.RegisterInOptionsUI();
 
             // Schedule the system before the vanilla postal system in the GameSimulation phase.
-            updateSystem.UpdateBefore<PostMasterSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateBefore<MagicMailSystem>(SystemUpdatePhase.GameSimulation);
         }
 
         /// <summary>

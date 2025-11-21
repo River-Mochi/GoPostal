@@ -1,18 +1,19 @@
 // Settings/Setting.cs
-// Options UI and configuration for PostMaster [PM].
+// Options UI and configuration for MagicPostMaster [MPM].
 
-namespace PostMaster
+namespace MagicPostMaster
 {
     using System;
     using Colossal.IO.AssetDatabase;
     using Game.Modding;
     using Game.Settings;
     using Game.UI;
+    using MagicPostMaster;
     using Unity.Entities;
     using UnityEngine;
 
     /// <summary>
-    /// Settings definition and UI bindings for PostMaster [PM].
+    /// Settings definition and UI bindings for MagicPostMaster [MPM].
     /// </summary>
     [FileLocation("ModsSettings/PostMaster/PostMaster")]
     [SettingsUITabOrder(
@@ -101,7 +102,7 @@ namespace PostMaster
             base.Apply();
 
             World? world = World.DefaultGameObjectInjectionWorld;
-            PostMasterSystem? system = world?.GetExistingSystemManaged<PostMasterSystem>();
+            MagicMailSystem? system = world?.GetExistingSystemManaged<MagicMailSystem>();
             if (system != null)
             {
                 system.Enabled = true;
@@ -370,15 +371,15 @@ namespace PostMaster
 
         [SettingsUISection(kStatusTab, StatusSummaryGroup)]
         public string StatusFacilitySummary =>
-            PostMasterSystem.GetStatusSummary();
+            MagicMailSystem.GetStatusSummary();
 
         [SettingsUISection(kStatusTab, StatusSummaryGroup)]
         public string StatusCityMailSummary =>
-            PostMasterSystem.GetStatusCityMail();
+            MagicMailSystem.GetStatusCityMail();
 
         [SettingsUISection(kStatusTab, StatusActivityGroup)]
         public string StatusLastActivity =>
-            PostMasterSystem.GetStatusActivity();
+            MagicMailSystem.GetStatusActivity();
 
         // --------------------------------------------------------------------
         // ABOUT TAB: INFO
@@ -435,22 +436,22 @@ namespace PostMaster
         /// </summary>
         public override void SetDefaults()
         {
-            // Post offices: fix low local mail via magic top-up.
+            // Post offices: auto-get local mail when low (magic top-up).
             PO_GetLocalMail = true;
             PO_GettingThresholdPercentage = 2;
             PO_GettingPercentage = 15;
 
             // Global overflow fix for PO + sorting (magic cleanup).
             FixMailOverflow = true;
-            PO_OverflowPercentage = 80;
-            PSF_OverflowPercentage = 80;
+            PO_OverflowPercentage = 85;
+            PSF_OverflowPercentage = 85;
 
-            // Sorting facilities: magic unsorted mail top-up when low.
+            // Sorting facilities: auto-get unsorted mail when low (magic top-up).
             PSF_GetUnsortedMail = true;
-            PSF_GettingThresholdPercentage = 5;   // default: 5%
-            PSF_GettingPercentage = 20;           // default: fetch 20%
+            PSF_GettingThresholdPercentage = 5;
+            PSF_GettingPercentage = 20;
 
-            PSF_SortingSpeedPercentage = 100;
+            PSF_SortingSpeedPercentage = 150;
             PSF_StorageCapacityPercentage = 100;
 
             // Capacities enabled by default.

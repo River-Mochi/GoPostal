@@ -1,64 +1,66 @@
 ﻿<Publish>
-	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-	<ModId Value="" />
-	<!--Name of the mod to display to players-->
-	<DisplayName Value="PostMaster" />
-	<!--Short description of the mod-->
-	<ShortDescription Value="Post Office Fixes and Mail Service Tweaks" />
-	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-	<!--LongDescription Value="Fixes always-empty industrial signature buildings." /-->
-	<LongDescription>
-Mod helps the post facilities to work more smoothly.
-- **Post Office** gets Mail to Deliver when in critical need.
-- **Post Sorting Office** gets Unsorted Mail when in critical need.
+  <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
+  <ModId Value="" />
+  <!--Name of the mod to display to players-->
+  <DisplayName Value="Magic PostMaster" />
+  <!--Short description of the mod-->
+  <ShortDescription Value="Post office fixes, tweaks, and capacity controls." />
+  <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
+  <LongDescription>
+## Magic PostMaster [MPM]
 
-If your postal infrastructure is working good and efficient then this mod will simply do nothing :)
-
-### Rationale
-
-The dreaded **Unrealiable mail service** happiness malus happens when there is a lack of Mail to Deliver in post offices.
-Collecting mail is not enough to get rid of this malus. Post Vans need to deliver mail regularly. 
-Mail to Deliver is supposed to be transferred either from Cargo Stations or from Post Sorting Facilities (and they get it by sorting Unsorted Mail).
-The mail transfer processes seems to be malfunctioning from time to time e.g. there can be hundreds of tons of Mail to Deliver in Cargo stations and yet the post offices are lacking it. 
-The mod basically simulates the mail transfer in critical cases, see below.
+- MPM gives more control over post offices, sorting facilities, and post-vans.
+- It also provides a couple "Magic" fixes for issues with the mail system until CO fixes it.
 
 ### Features
 
-The mod checks every 45 in-game minutes if post facilities have enough mail to process.
-- **Post Office** gets **10000** units of Mail to Deliver if its level of Mail to Deliver drops below **5000** units.
-- **Post Sorting Facility** gets **50000** units of Unsorted Mail if its level of Unsorted Mail drops below **50000** units.
+- **Fix low Local mail** at post offices by "magically" topping up Local Mail when storage
+  drops below a configurable threshold.
+- **Fix low Unsorted mail** at sorting facilities to keep sorting lines active.
+- **Fix mail overflow** by trimming overfilled mail buffers at post offices and sorting
+  facilities so they do not remain blocked forever.
+- Adjust **post van mail load**, **post van fleet size**, and **post truck fleet size**.
+- Boost **sorting speed** and **sorting storage capacity** for sorting facilities.
+- Show simple city-wide mail statistics and recent activity in the options UI.
 
-Each time the mod adds some mail, there will be an entry in the log. When there are no entries it means that your postal infrastructure is performing efficient.
+All sliders and toggles are optional and can be reset to game defaults (vanilla) or to a recommended quick-start
+preset.
 
-### Technical
+### 4 Languages
+- English, French, Spanish, Simplified Chinese
 
-- Safe to remove any time; does not modify savefiles or game systems.
-
+### Compatibility
+- Safe to remove at any time; postal facilities will fall back to the
+  game's default.
 
 ### Credits
-- River-Mochi: author and maintainer
-- Inspriation from Infixo's Postal Helper
 
+- River-Mochi: author and maintainer.
+- Inspired by Infixo's "Postal Helper".
 
-	</LongDescription>
-	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail.png" />
-	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="" />
-	<!--Tag, can be set multiple times-->
-	<Tag Value="Code Mod" />
-	<!--Link to the forum post where the mod can be discussed-->
-	<ForumLink Value="" />
-	<!--Version of the mod-->
-	<ModVersion Value="1.0.2" />
-	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.3.6*" />
-	<!--Dependency for the mod, can be set multiple times-->
-	<Dependency Id="" />
-	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<!--ChangeLog Value="" /-->
-	<ChangeLog>Fixes mail overflow that blocks post vans.</ChangeLog>
-	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-	<ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
-	<ExternalLink Type="github" Url="https://github.com/River-Mochi/PostMaster" />
+  </LongDescription>
+  <!--Thumbnail-->
+  <Thumbnail Value="Properties/Thumbnail.png" />
+  <!--Screenshot, can be set multiple times-->
+  <Screenshot Value="" />
+  <!--Tag, can be set multiple times-->
+  <Tag Value="Code Mod" />
+  <!--Link to the forum post where the mod can be discussed-->
+  <ForumLink Value="" />
+  <!--Version of the mod-->
+  <ModVersion Value="1.0.2" />
+  <!--Recommended version of the base game to use the mod-->
+  <GameVersion Value="1.4.*" />
+  <!--Dependency for the mod, can be set multiple times-->
+  <Dependency Id="" />
+  <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
+  <ChangeLog>
+- Renamed to Magic PostMaster.
+- Added configurable Local/Unsorted mail top-ups and overflow fixes.
+- Added capacity sliders for vans, trucks, and sorting facilities.
+- Added city-wide mail stats and activity summary.
+  </ChangeLog>
+  <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
+  <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
+  <ExternalLink Type="github" Url="https://github.com/River-Mochi/PostMaster" />
 </Publish>
