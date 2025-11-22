@@ -16,7 +16,7 @@
 ### How to Use
 
 - **Quick Start Button** - 1-Click, set it and forget it (applies recommended defaults).
-    - not sure what to do? Just use this button, done, now you can play with a better working mail system.
+    - not sure what to do? Just use this button, done - play with a better working mail system.
 
 ### Power Users
 
@@ -28,20 +28,18 @@
 ### Fixes for mail issues
 
 1. **auto Fix** low amount of local mail by magically topping up mail when storage drops below a certain amount (you can choose).
-2. **auto Fix** mail overflow by trimming overfilled mail buffers at post offices and sorting facilities so they do not remain blocked forever.
-3. **auto Fix** low amount of unsorted mail at sorting facilities to keep the sorting active. 
-    If you have cargo shipyard, it could be shipping out most of the unsorted mail leaving very little see reference below.
-4. Fixes are workaround solution until CO fixes the mail transfer process.
+2. **auto Fix** mail overflow by trimming overfilled mail buffers so they do not remain blocked forever (for PO and Sorters).
+3. **auto Fix** low amount of unsorted mail at sorting facilities to keep the sorting active. Cargo shipyards could be shipping out most of the unsorted mail leaving very little for sorting (reference below).
+4. Fixes are workaround solutions until CO fixes the mail transfer process.
 
 ### 5 Languages
 
-- Français French, Deutsch German, Español Spanish,
-- English, 简体中文 (Simplified Chinese)
+- Français French, Deutsch German, Español Spanish,  Italiano Italian
+- English, 简体中文 (Simplified Chinese), Português Brazilian
 
 
 ### Compatibility
-- Safe to remove at any time; postal facilities will fall back to the
-  game's default.
+- Safe to remove at any time; postal facilities will fall back to the game's default.
 - Does not use Harmony or Reflection, less likely to break with game updates.
 
 ### Support and Feedback
@@ -76,14 +74,14 @@ tags: unreliable mail service, broken mail bug fixes, post van, post truck, deli
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/magic-mail.1877962/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.0.5" />
+  <ModVersion Value="1.0.7" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.4.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-- images ordering, publish notes
+- update images
   </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
