@@ -17,6 +17,7 @@ namespace MagicMail
     using Colossal.IO.AssetDatabase;
     using Colossal.Localization;
     using Colossal.Logging;
+    using CS2Shared.RiverMochi;
 
     using Game;
     using Game.Modding;
@@ -35,7 +36,13 @@ namespace MagicMail
             Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
         public static readonly ILog s_Log =
-            LogManager.GetLogger(ModId).SetShowsErrorsInUI(false);
+            LogManager.GetLogger(ModId).SetShowsErrorsInUI(
+#if DEBUG
+                true
+#else
+                false
+#endif
+            );
 
         public static Setting? Settings
         {
@@ -47,16 +54,19 @@ namespace MagicMail
 
         public void OnLoad(UpdateSystem updateSystem)
         {
+            // Direct-file logging keeps MagicMail messages out of Player.log.
+            LogUtils.Configure(ModId, s_Log);
+
             if (!s_BannerLogged)
             {
                 s_BannerLogged = true;
-                s_Log.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
+                LogUtils.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
             }
 
             GameManager? gameManager = GameManager.instance;
             if (gameManager == null)
             {
-                s_Log.Error("GameManager.instance is null in Mod.OnLoad.");
+                LogUtils.Error("GameManager.instance is null in Mod.OnLoad.");
                 return;
             }
 
@@ -66,7 +76,7 @@ namespace MagicMail
             LocalizationManager? localizationManager = gameManager.localizationManager;
             if (localizationManager == null)
             {
-                s_Log.Warn("LocalizationManager is null; locale sources were not registered.");
+                LogUtils.Warn("LocalizationManager is null; locale sources were not registered.");
             }
             else
             {
@@ -89,8 +99,7 @@ namespace MagicMail
                 }
                 catch (Exception ex)
                 {
-                    s_Log.Error(
-                        $"Localization registration failed: {ex.GetType().Name}: {ex.Message}");
+                    LogUtils.Error("Localization registration failed.", ex);
                 }
             }
 
@@ -106,6 +115,12 @@ namespace MagicMail
 
             updateSystem.UpdateBefore<MailCapacitySystem>(
                 SystemUpdatePhase.GameSimulation);
+
+#if DEBUG
+            // Read-only mail snapshots for controlled test builds only.
+            updateSystem.UpdateAfter<MailDiagnosticSystem>(
+                SystemUpdatePhase.GameSimulation);
+#endif
         }
 
         public void OnDispose()

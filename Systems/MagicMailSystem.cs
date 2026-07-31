@@ -12,8 +12,8 @@
 
 namespace MagicMail
 {
-    using System.Collections.Generic;
     using Colossal.Entities;
+    using CS2Shared.RiverMochi;
     using Game;
     using Game.Common;
     using Game.Economy;
@@ -58,12 +58,8 @@ namespace MagicMail
 
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
-#if DEBUG
-            // Matching the vanilla PostFacilityAISystem interval for easier debugging.
-            return 256;
-#else
+            // Debug tests must use the same intervention frequency as Release.
             return 262144 / UpdatesPerDay;
-#endif
         }
 
         /// <summary>
@@ -102,7 +98,9 @@ namespace MagicMail
             // Try to grab the vanilla MailAccumulationSystem so stats can be surfaced.
             TryResolveMailAccumulationSystem();
 
-            Mod.s_Log.Info("MagicMailSystem created.");
+#if DEBUG
+            LogUtils.Info("MagicMailSystem created.");
+#endif
         }
 
         /// <summary>
@@ -129,15 +127,13 @@ namespace MagicMail
             var totalPostVanCapacity = 0;
             var totalPostTruckCapacity = 0;
 
-#if DEBUG
-            Mod.s_Log.Info($"MagicMailSystem.OnUpdate: {facilityCount} post facilities");
-#endif
-
             foreach (var postEntity in postEntities)
             {
                 if (!entityManager.TryGetComponent(postEntity, out PrefabRef prefabRef))
                 {
-                    Mod.s_Log.Warn($"Failed to retrieve PrefabRef for {postEntity}.");
+                    LogUtils.WarnOnce(
+                        "MM.MissingPrefabRef",
+                        () => $"Failed to retrieve PrefabRef for {postEntity}.");
                     continue;
                 }
 
@@ -145,7 +141,9 @@ namespace MagicMail
 
                 if (!entityManager.TryGetComponent(prefab, out PostFacilityData postFacilityData))
                 {
-                    Mod.s_Log.Warn($"Failed to retrieve PostFacilityData for prefab {prefab}.");
+                    LogUtils.WarnOnce(
+                        "MM.MissingPostFacilityData",
+                        () => $"Failed to retrieve PostFacilityData for prefab {prefab}.");
                     continue;
                 }
 
@@ -154,7 +152,9 @@ namespace MagicMail
 
                 if (!entityManager.HasBuffer<Resources>(postEntity))
                 {
-                    Mod.s_Log.Warn($"Post facility {postEntity} has no Resources buffer.");
+                    LogUtils.WarnOnce(
+                        "MM.MissingResources",
+                        () => $"Post facility {postEntity} has no Resources buffer.");
                     continue;
                 }
 
@@ -162,7 +162,9 @@ namespace MagicMail
 
                 if (mailCapacity <= 0)
                 {
-                    Mod.s_Log.Warn($"Mail capacity is zero or less: {mailCapacity} (entity {postEntity})");
+                    LogUtils.WarnOnce(
+                        "MM.InvalidMailCapacity",
+                        () => $"Mail capacity is zero or less: {mailCapacity} (entity {postEntity}).");
                     continue;
                 }
 
@@ -246,7 +248,9 @@ namespace MagicMail
                 localMailCount * 100 / mailCapacity <= settings.PO_GettingThresholdPercentage)
             {
                 var addAmount = mailCapacity * settings.PO_GettingPercentage / 100;
+#if DEBUG
                 var oldLocal = localMailCount;
+#endif
 
                 AddResourceAmount(resources, Resource.LocalMail, addAmount);
 
@@ -256,7 +260,11 @@ namespace MagicMail
                 allMailCount = localMailCount + outgoingMailCount + unsortedMailCount;
 
                 didGet = true;
-                Mod.s_Log.Info($"[PO Get] {postEntity}.LocalMail: {oldLocal} -> {localMailCount}");
+#if DEBUG
+                LogUtils.Info(
+                    $"[MM EVENT PO_GET] entity={postEntity} " +
+                    $"L={oldLocal}->{localMailCount} U={unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
+#endif
             }
 
             // 2) Overflow cleanup (global toggle).
@@ -302,14 +310,24 @@ namespace MagicMail
                 AddResourceAmount(resources, Resource.UnsortedMail, targetUnsorted - unsortedMailCount);
             }
 
+#if DEBUG
+            var oldLocal = localMailCount;
+            var oldOutgoing = outgoingMailCount;
+            var oldUnsorted = unsortedMailCount;
             var oldAll = allMailCount;
+#endif
             localMailCount = GetResourceAmount(resources, Resource.LocalMail);
             outgoingMailCount = GetResourceAmount(resources, Resource.OutgoingMail);
             unsortedMailCount = GetResourceAmount(resources, Resource.UnsortedMail);
             allMailCount = localMailCount + outgoingMailCount + unsortedMailCount;
 
             didOverflow = true;
-            Mod.s_Log.Info($"[PO Overflow] {postEntity}.All: {oldAll} -> {allMailCount}");
+#if DEBUG
+            LogUtils.Info(
+                $"[MM EVENT PO_OVERFLOW] entity={postEntity} " +
+                $"L={oldLocal}->{localMailCount} U={oldUnsorted}->{unsortedMailCount} " +
+                $"O={oldOutgoing}->{outgoingMailCount} total={oldAll}->{allMailCount} cap={mailCapacity}");
+#endif
 
             if (didGet)
             {
@@ -347,7 +365,9 @@ namespace MagicMail
                 unsortedMailCount * 100 / mailCapacity <= settings.PSF_GettingThresholdPercentage)
             {
                 var addAmount = mailCapacity * settings.PSF_GettingPercentage / 100;
+#if DEBUG
                 var oldUnsorted = unsortedMailCount;
+#endif
 
                 AddResourceAmount(resources, Resource.UnsortedMail, addAmount);
 
@@ -357,7 +377,11 @@ namespace MagicMail
                 allMailCount = localMailCount + outgoingMailCount + unsortedMailCount;
 
                 didGet = true;
-                Mod.s_Log.Info($"[PSF Get] {postEntity}.UnsortedMail: {oldUnsorted} -> {unsortedMailCount}");
+#if DEBUG
+                LogUtils.Info(
+                    $"[MM EVENT PSF_GET] entity={postEntity} " +
+                    $"L={localMailCount} U={oldUnsorted}->{unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
+#endif
             }
 
             // 2) Overflow cleanup (global toggle).
@@ -401,14 +425,24 @@ namespace MagicMail
                 AddResourceAmount(resources, Resource.UnsortedMail, targetUnsorted - unsortedMailCount);
             }
 
+#if DEBUG
+            var oldLocal = localMailCount;
+            var oldOutgoing = outgoingMailCount;
+            var oldUnsorted = unsortedMailCount;
             var oldAll = allMailCount;
+#endif
             localMailCount = GetResourceAmount(resources, Resource.LocalMail);
             outgoingMailCount = GetResourceAmount(resources, Resource.OutgoingMail);
             unsortedMailCount = GetResourceAmount(resources, Resource.UnsortedMail);
             allMailCount = localMailCount + outgoingMailCount + unsortedMailCount;
 
             didOverflow = true;
-            Mod.s_Log.Info($"[PSF Overflow] {postEntity}.All: {oldAll} -> {allMailCount}");
+#if DEBUG
+            LogUtils.Info(
+                $"[MM EVENT PSF_OVERFLOW] entity={postEntity} " +
+                $"L={oldLocal}->{localMailCount} U={oldUnsorted}->{unsortedMailCount} " +
+                $"O={oldOutgoing}->{outgoingMailCount} total={oldAll}->{allMailCount} cap={mailCapacity}");
+#endif
 
             if (didGet)
             {
@@ -485,7 +519,9 @@ namespace MagicMail
             {
                 if (m_MailAccumulationSystem == null)
                 {
-                    Mod.s_Log.Warn("MailAccumulationSystem not found; city mail stats unavailable.");
+                    LogUtils.WarnOnce(
+                        "MM.MailAccumulationSystemMissing",
+                        () => "MailAccumulationSystem not found; city mail stats unavailable.");
                 }
             }
         }
