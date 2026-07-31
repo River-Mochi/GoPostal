@@ -19,7 +19,6 @@ namespace MagicMail
     using Game.Economy;
     using Game.Pathfind;
     using Game.Prefabs;
-    using Game.Routes;
     using Game.Simulation;
     using Unity.Collections;
     using Unity.Entities;
@@ -76,10 +75,7 @@ namespace MagicMail
                 int outgoing = EconomyUtils.GetResources(Resource.OutgoingMail, resources);
                 int storedTotal = local + unsorted + outgoing;
                 int aiStoredBase = local + unsorted;
-                int mailboxAmount = EntityManager.TryGetComponent(entity, out MailBox mailbox)
-                    ? mailbox.m_MailAmount
-                    : 0;
-
+              
                 string role = effectiveData.m_SortingRate == 0 ? "POST_OFFICE" : "SORTING";
                 string fill = effectiveData.m_MailCapacity > 0
                     ? $"{storedTotal * 100.0 / effectiveData.m_MailCapacity:0.0}%"
@@ -98,7 +94,7 @@ namespace MagicMail
                 AddLine(
                     $"[MAIL FAC STORE] entity={entity} L={local} U={unsorted} O={outgoing} " +
                     $"storedTotal={storedTotal} fill={fill} AIstoredBase=L+U={aiStoredBase} " +
-                    $"outgoingOmittedByAI={outgoing} mailbox={mailboxAmount} processing={facility.m_ProcessingFactor}");
+                    $"outgoingOmittedByAI={outgoing} processing={facility.m_ProcessingFactor}");
 
                 AddLine(
                     $"[MAIL FAC STATE] entity={entity} flags={facility.m_Flags} " +
