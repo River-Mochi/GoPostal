@@ -13,7 +13,6 @@
 namespace MagicMail
 {
     using System;
-    using System.Globalization;
     using System.Text;
     using Colossal.Serialization.Entities;
     using CS2Shared.RiverMochi;
@@ -158,7 +157,9 @@ namespace MagicMail
             int accumulated = m_MailAccumulationSystem?.LastAccumulatedMail ?? -1;
             int processed = m_MailAccumulationSystem?.LastProcessedMail ?? -1;
             string rawRatio = accumulated > 0
-                ? ((double)processed / accumulated).ToString("0.000", CultureInfo.InvariantCulture)
+                ? ((double)processed / accumulated).ToString(
+                    "0.000",
+                    System.Globalization.CultureInfo.InvariantCulture)
                 : "n/a";
 
             int producerCount = 0;
@@ -170,12 +171,12 @@ namespace MagicMail
             long sendingBacklog = 0;
             long receivingBacklog = 0;
 
-            foreach ((RefRO<MailProducer> producerRef, Entity entity) in SystemAPI
-                         .Query<RefRO<MailProducer>>()
+            foreach ((RefRO<Game.Buildings.MailProducer> producerRef, Entity entity) in SystemAPI
+                         .Query<RefRO<Game.Buildings.MailProducer>>()
                          .WithNone<Destroyed, Deleted, Temp>()
                          .WithEntityAccess())
             {
-                MailProducer producer = producerRef.ValueRO;
+                Game.Buildings.MailProducer producer = producerRef.ValueRO;
                 int receiving = producer.receivingMail;
 
                 producerCount++;

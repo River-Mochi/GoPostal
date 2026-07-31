@@ -249,7 +249,7 @@ namespace MagicMail
             {
                 var addAmount = mailCapacity * settings.PO_GettingPercentage / 100;
 #if DEBUG
-                var oldLocal = localMailCount;
+                var beforeTopUpLocal = localMailCount;
 #endif
 
                 AddResourceAmount(resources, Resource.LocalMail, addAmount);
@@ -263,7 +263,7 @@ namespace MagicMail
 #if DEBUG
                 LogUtils.Info(
                     $"[MM EVENT PO_GET] entity={postEntity} " +
-                    $"L={oldLocal}->{localMailCount} U={unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
+                    $"L={beforeTopUpLocal}->{localMailCount} U={unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
 #endif
             }
 
@@ -311,10 +311,10 @@ namespace MagicMail
             }
 
 #if DEBUG
-            var oldLocal = localMailCount;
-            var oldOutgoing = outgoingMailCount;
-            var oldUnsorted = unsortedMailCount;
-            var oldAll = allMailCount;
+            var beforeOverflowLocal = localMailCount;
+            var beforeOverflowOutgoing = outgoingMailCount;
+            var beforeOverflowUnsorted = unsortedMailCount;
+            var beforeOverflowAll = allMailCount;
 #endif
             localMailCount = GetResourceAmount(resources, Resource.LocalMail);
             outgoingMailCount = GetResourceAmount(resources, Resource.OutgoingMail);
@@ -325,8 +325,8 @@ namespace MagicMail
 #if DEBUG
             LogUtils.Info(
                 $"[MM EVENT PO_OVERFLOW] entity={postEntity} " +
-                $"L={oldLocal}->{localMailCount} U={oldUnsorted}->{unsortedMailCount} " +
-                $"O={oldOutgoing}->{outgoingMailCount} total={oldAll}->{allMailCount} cap={mailCapacity}");
+                $"L={beforeOverflowLocal}->{localMailCount} U={beforeOverflowUnsorted}->{unsortedMailCount} " +
+                $"O={beforeOverflowOutgoing}->{outgoingMailCount} total={beforeOverflowAll}->{allMailCount} cap={mailCapacity}");
 #endif
 
             if (didGet)
@@ -366,7 +366,7 @@ namespace MagicMail
             {
                 var addAmount = mailCapacity * settings.PSF_GettingPercentage / 100;
 #if DEBUG
-                var oldUnsorted = unsortedMailCount;
+                var beforeTopUpUnsorted = unsortedMailCount;
 #endif
 
                 AddResourceAmount(resources, Resource.UnsortedMail, addAmount);
@@ -380,7 +380,7 @@ namespace MagicMail
 #if DEBUG
                 LogUtils.Info(
                     $"[MM EVENT PSF_GET] entity={postEntity} " +
-                    $"L={localMailCount} U={oldUnsorted}->{unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
+                    $"L={localMailCount} U={beforeTopUpUnsorted}->{unsortedMailCount} O={outgoingMailCount} cap={mailCapacity}");
 #endif
             }
 
@@ -426,10 +426,10 @@ namespace MagicMail
             }
 
 #if DEBUG
-            var oldLocal = localMailCount;
-            var oldOutgoing = outgoingMailCount;
-            var oldUnsorted = unsortedMailCount;
-            var oldAll = allMailCount;
+            var beforeOverflowLocal = localMailCount;
+            var beforeOverflowOutgoing = outgoingMailCount;
+            var beforeOverflowUnsorted = unsortedMailCount;
+            var beforeOverflowAll = allMailCount;
 #endif
             localMailCount = GetResourceAmount(resources, Resource.LocalMail);
             outgoingMailCount = GetResourceAmount(resources, Resource.OutgoingMail);
@@ -440,8 +440,8 @@ namespace MagicMail
 #if DEBUG
             LogUtils.Info(
                 $"[MM EVENT PSF_OVERFLOW] entity={postEntity} " +
-                $"L={oldLocal}->{localMailCount} U={oldUnsorted}->{unsortedMailCount} " +
-                $"O={oldOutgoing}->{outgoingMailCount} total={oldAll}->{allMailCount} cap={mailCapacity}");
+                $"L={beforeOverflowLocal}->{localMailCount} U={beforeOverflowUnsorted}->{unsortedMailCount} " +
+                $"O={beforeOverflowOutgoing}->{outgoingMailCount} total={beforeOverflowAll}->{allMailCount} cap={mailCapacity}");
 #endif
 
             if (didGet)
