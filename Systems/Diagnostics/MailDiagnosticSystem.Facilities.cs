@@ -13,11 +13,9 @@
 namespace MagicMail
 {
     using System.Text;
-    using Colossal.Entities;
     using CS2Shared.RiverMochi;
     using Game.Buildings;
     using Game.Economy;
-    using Game.Pathfind;
     using Game.Prefabs;
     using Game.Simulation;
     using Unity.Collections;
@@ -45,16 +43,21 @@ namespace MagicMail
 
             foreach (Entity entity in entities)
             {
-                if (!EntityManager.TryGetComponent(entity, out PrefabRef prefabRef) ||
-                    !EntityManager.TryGetComponent(entity, out Game.Buildings.PostFacility facility) ||
-                    !EntityManager.TryGetComponent(prefabRef.m_Prefab, out PostFacilityData prefabData) ||
-                    !EntityManager.HasBuffer<Resources>(entity))
+                Game.Prefabs.PrefabRef prefabRef =
+                    EntityManager.GetComponentData<Game.Prefabs.PrefabRef>(entity);
+                Game.Buildings.PostFacility facility =
+                    EntityManager.GetComponentData<Game.Buildings.PostFacility>(entity);
+
+                if (!EntityManager.HasComponent<Game.Prefabs.PostFacilityData>(prefabRef.m_Prefab))
                 {
                     LogUtils.WarnOnce(
                         "MM.DiagFacilityReadFailed",
                         () => $"[MAIL DIAG] Could not read facility {entity}.");
                     continue;
                 }
+
+                Game.Prefabs.PostFacilityData prefabData =
+                    EntityManager.GetComponentData<Game.Prefabs.PostFacilityData>(prefabRef.m_Prefab);
 
                 DynamicBuffer<Resources> resources = EntityManager.GetBuffer<Resources>(entity, true);
                 PostFacilityData effectiveData = prefabData;
@@ -75,7 +78,7 @@ namespace MagicMail
                 int outgoing = EconomyUtils.GetResources(Resource.OutgoingMail, resources);
                 int storedTotal = local + unsorted + outgoing;
                 int aiStoredBase = local + unsorted;
-              
+
                 string role = effectiveData.m_SortingRate == 0 ? "POST_OFFICE" : "SORTING";
                 string fill = effectiveData.m_MailCapacity > 0
                     ? $"{storedTotal * 100.0 / effectiveData.m_MailCapacity:0.0}%"
@@ -134,13 +137,15 @@ namespace MagicMail
                             result.ParkedVans++;
                         }
                     }
-                    else if (EntityManager.TryGetComponent(
-                                 vehicle,
-                                 out Game.Vehicles.DeliveryTruck truck) &&
-                             IsMailResource(truck.m_Resource))
+                    else if (EntityManager.HasComponent<Game.Vehicles.DeliveryTruck>(vehicle))
                     {
-                        result.OwnedMailSemis++;
-                        result.OwnedSemiLoad += truck.m_Amount;
+                        Game.Vehicles.DeliveryTruck truck =
+                            EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(vehicle);
+                        if (IsMailResource(truck.m_Resource))
+                        {
+                            result.OwnedMailSemis++;
+                            result.OwnedSemiLoad += truck.m_Amount;
+                        }
                     }
                 }
             }
@@ -152,13 +157,16 @@ namespace MagicMail
 
                 foreach (Game.Vehicles.GuestVehicle guestVehicle in guestVehicles)
                 {
-                    if (EntityManager.TryGetComponent(
-                            guestVehicle.m_Vehicle,
-                            out Game.Vehicles.DeliveryTruck truck) &&
-                        IsMailResource(truck.m_Resource))
+                    if (EntityManager.HasComponent<Game.Vehicles.DeliveryTruck>(guestVehicle.m_Vehicle))
                     {
-                        result.GuestMailSemis++;
-                        result.GuestSemiLoad += truck.m_Amount;
+                        Game.Vehicles.DeliveryTruck truck =
+                            EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(
+                                guestVehicle.m_Vehicle);
+                        if (IsMailResource(truck.m_Resource))
+                        {
+                            result.GuestMailSemis++;
+                            result.GuestSemiLoad += truck.m_Amount;
+                        }
                     }
                 }
             }
@@ -200,10 +208,13 @@ namespace MagicMail
                 return $"{requestEntity}:missing";
             }
 
-            if (!EntityManager.TryGetComponent(requestEntity, out MailTransferRequest request))
+            if (!EntityManager.HasComponent<Game.Simulation.MailTransferRequest>(requestEntity))
             {
                 return $"{requestEntity}:not-transfer";
             }
+
+            Game.Simulation.MailTransferRequest request =
+                EntityManager.GetComponentData<Game.Simulation.MailTransferRequest>(requestEntity);
 
             return $"{requestEntity}:{request.m_Flags}:amount={request.m_Amount}:" +
                    $"priority={request.m_Priority:0.000}:{FormatRequestState(requestEntity)}";
@@ -221,8 +232,10 @@ namespace MagicMail
                 return $"{requestEntity}:missing";
             }
 
-            if (EntityManager.TryGetComponent(requestEntity, out PostVanRequest vanRequest))
+            if (EntityManager.HasComponent<Game.Simulation.PostVanRequest>(requestEntity))
             {
+                Game.Simulation.PostVanRequest vanRequest =
+                    EntityManager.GetComponentData<Game.Simulation.PostVanRequest>(requestEntity);
                 return $"{requestEntity}:VAN:{vanRequest.m_Flags}:" +
                        $"priority={vanRequest.m_Priority}:{FormatRequestState(requestEntity)}";
             }
@@ -240,13 +253,15 @@ namespace MagicMail
             string state =
                 EntityManager.HasComponent<Dispatched>(requestEntity) ? "dispatched" : "waiting";
 
-            if (EntityManager.HasComponent<PathInformation>(requestEntity))
+            if (EntityManager.HasComponent<Game.Pathfind.PathInformation>(requestEntity))
             {
                 state += "+path";
             }
 
-            if (EntityManager.TryGetComponent(requestEntity, out ServiceRequest serviceRequest))
+            if (EntityManager.HasComponent<Game.Simulation.ServiceRequest>(requestEntity))
             {
+                Game.Simulation.ServiceRequest serviceRequest =
+                    EntityManager.GetComponentData<Game.Simulation.ServiceRequest>(requestEntity);
                 state += $"+fail={serviceRequest.m_FailCount}+cooldown={serviceRequest.m_Cooldown}";
             }
 
@@ -269,8 +284,10 @@ namespace MagicMail
                 }
 
                 Entity upgrade = upgrades[i].m_Upgrade;
-                if (EntityManager.TryGetComponent(upgrade, out PrefabRef prefabRef))
+                if (EntityManager.HasComponent<Game.Prefabs.PrefabRef>(upgrade))
                 {
+                    Game.Prefabs.PrefabRef prefabRef =
+                        EntityManager.GetComponentData<Game.Prefabs.PrefabRef>(upgrade);
                     names.Append(GetPrefabName(prefabRef.m_Prefab));
                 }
                 else
@@ -284,7 +301,9 @@ namespace MagicMail
 
         private string GetPrefabName(Entity prefabEntity)
         {
-            return m_PrefabSystem.TryGetPrefab(prefabEntity, out PrefabBase prefabBase)
+            return m_PrefabSystem.TryGetPrefab(
+                prefabEntity,
+                out Game.Prefabs.PrefabBase prefabBase)
                 ? prefabBase.name
                 : prefabEntity.ToString();
         }

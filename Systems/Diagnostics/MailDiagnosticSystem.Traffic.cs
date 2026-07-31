@@ -12,10 +12,8 @@
 #if DEBUG
 namespace MagicMail
 {
-    using Colossal.Entities;
     using Game.Common;
     using Game.Economy;
-    using Game.Pathfind;
     using Game.Prefabs;
     using Game.Simulation;
     using Unity.Entities;
@@ -59,7 +57,7 @@ namespace MagicMail
                     vanDispatched++;
                 }
 
-                if (EntityManager.HasComponent<PathInformation>(entity))
+                if (EntityManager.HasComponent<Game.Pathfind.PathInformation>(entity))
                 {
                     vanPathfinding++;
                 }
@@ -131,7 +129,7 @@ namespace MagicMail
                     transferDispatched++;
                 }
 
-                if (EntityManager.HasComponent<PathInformation>(entity))
+                if (EntityManager.HasComponent<Game.Pathfind.PathInformation>(entity))
                 {
                     transferPathfinding++;
                 }
@@ -210,11 +208,18 @@ namespace MagicMail
                     targetedVans++;
                 }
 
-                if (EntityManager.TryGetComponent(entity, out PrefabRef prefabRef) &&
-                    EntityManager.TryGetComponent(prefabRef.m_Prefab, out PostVanData vanData))
+                if (EntityManager.HasComponent<Game.Prefabs.PrefabRef>(entity))
                 {
-                    minVanCapacity = System.Math.Min(minVanCapacity, vanData.m_MailCapacity);
-                    maxVanCapacity = System.Math.Max(maxVanCapacity, vanData.m_MailCapacity);
+                    Game.Prefabs.PrefabRef prefabRef =
+                        EntityManager.GetComponentData<Game.Prefabs.PrefabRef>(entity);
+
+                    if (EntityManager.HasComponent<Game.Prefabs.PostVanData>(prefabRef.m_Prefab))
+                    {
+                        Game.Prefabs.PostVanData vanData =
+                            EntityManager.GetComponentData<Game.Prefabs.PostVanData>(prefabRef.m_Prefab);
+                        minVanCapacity = System.Math.Min(minVanCapacity, vanData.m_MailCapacity);
+                        maxVanCapacity = System.Math.Max(maxVanCapacity, vanData.m_MailCapacity);
+                    }
                 }
             }
 
@@ -276,30 +281,47 @@ namespace MagicMail
                     storageTransferSemis++;
                 }
 
-                if (EntityManager.TryGetComponent(entity, out PrefabRef prefabRef) &&
-                    EntityManager.TryGetComponent(
-                        prefabRef.m_Prefab,
-                        out DeliveryTruckData truckData))
+                if (EntityManager.HasComponent<Game.Prefabs.PrefabRef>(entity))
                 {
-                    minSemiCapacity = System.Math.Min(minSemiCapacity, truckData.m_CargoCapacity);
-                    maxSemiCapacity = System.Math.Max(maxSemiCapacity, truckData.m_CargoCapacity);
+                    Game.Prefabs.PrefabRef prefabRef =
+                        EntityManager.GetComponentData<Game.Prefabs.PrefabRef>(entity);
+
+                    if (EntityManager.HasComponent<Game.Prefabs.DeliveryTruckData>(prefabRef.m_Prefab))
+                    {
+                        Game.Prefabs.DeliveryTruckData truckData =
+                            EntityManager.GetComponentData<Game.Prefabs.DeliveryTruckData>(prefabRef.m_Prefab);
+                        minSemiCapacity = System.Math.Min(minSemiCapacity, truckData.m_CargoCapacity);
+                        maxSemiCapacity = System.Math.Max(maxSemiCapacity, truckData.m_CargoCapacity);
+                    }
                 }
 
-                if (EntityManager.TryGetComponent(entity, out Owner owner) &&
-                    EntityManager.HasComponent<Game.Buildings.PostFacility>(owner.m_Owner))
+                if (EntityManager.HasComponent<Game.Common.Owner>(entity))
                 {
-                    postalOwnedSemis++;
+                    Game.Common.Owner owner =
+                        EntityManager.GetComponentData<Game.Common.Owner>(entity);
+                    if (EntityManager.HasComponent<Game.Buildings.PostFacility>(owner.m_Owner))
+                    {
+                        postalOwnedSemis++;
+                    }
+                    else
+                    {
+                        outsideOrOtherOwnedSemis++;
+                    }
                 }
                 else
                 {
                     outsideOrOtherOwnedSemis++;
                 }
 
-                if (EntityManager.TryGetComponent(entity, out Game.Vehicles.ReturnLoad returnLoad) &&
-                    IsMailResource(returnLoad.m_Resource))
+                if (EntityManager.HasComponent<Game.Vehicles.ReturnLoad>(entity))
                 {
-                    returnLoads++;
-                    semiReturnLoad += returnLoad.m_Amount;
+                    Game.Vehicles.ReturnLoad returnLoad =
+                        EntityManager.GetComponentData<Game.Vehicles.ReturnLoad>(entity);
+                    if (IsMailResource(returnLoad.m_Resource))
+                    {
+                        returnLoads++;
+                        semiReturnLoad += returnLoad.m_Amount;
+                    }
                 }
             }
 

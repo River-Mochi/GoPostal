@@ -35,10 +35,8 @@ namespace MagicMail
         public static readonly string ModVersion =
             Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
-
-    internal static readonly ILog s_Log =
-        LogManager.GetLogger(ModId).SetShowsErrorsInUI(
-
+        internal static readonly ILog s_Log =
+            LogManager.GetLogger(ModId).SetShowsErrorsInUI(
 #if DEBUG
                 true
 #else
