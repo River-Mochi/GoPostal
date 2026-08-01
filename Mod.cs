@@ -117,7 +117,11 @@ namespace MagicMail
                 SystemUpdatePhase.GameSimulation);
 
 #if DEBUG
-            // Read-only mail snapshots for controlled test builds only.
+            // Fast read-only sampler catches sorting truck visits between main snapshots.
+            updateSystem.UpdateAfter<MailSortingTrafficDiagnosticSystem>(
+                SystemUpdatePhase.GameSimulation);
+
+            // Full read-only snapshots every 90 in-game minutes.
             updateSystem.UpdateAfter<MailDiagnosticSystem>(
                 SystemUpdatePhase.GameSimulation);
 #endif
