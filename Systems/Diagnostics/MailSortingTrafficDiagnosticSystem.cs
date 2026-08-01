@@ -285,24 +285,121 @@ namespace MagicMail
         {
             var result = new TruckObservation
             {
-                Resource = truck.m_Resource,
-                Amount = truck.m_Amount,
-                State = truck.m_State,
+                PrefabName = "unknown",
+                VehicleKind = "TRUCK",
+                Resource = Resource.NoResource,
+                State = 0,
                 IsGuest = isGuest,
                 IsTarget = isTarget,
                 ReturnResource = Resource.NoResource,
-                ReturnAmount = 0,
             };
 
-            if (EntityManager.HasComponent<ReturnLoad>(truckEntity))
+            if (EntityManager.HasBuffer<LayoutElement>(truckEntity))
             {
-                ReturnLoad returnLoad =
-                    EntityManager.GetComponentData<ReturnLoad>(truckEntity);
-                result.ReturnResource = returnLoad.m_Resource;
-                result.ReturnAmount = returnLoad.m_Amount;
+                DynamicBuffer<LayoutElement> layout =
+                    EntityManager.GetBuffer<LayoutElement>(truckEntity, true);
+
+                foreach (LayoutElement element in layout)
+                {
+                    Entity partEntity = element.m_Vehicle;
+                    if (!EntityManager.HasComponent<Game.Vehicles.DeliveryTruck>(partEntity))
+                    {
+                        continue;
+                    }
+
+                    Game.Vehicles.DeliveryTruck partTruck =
+                        partEntity == truckEntity
+                            ? truck
+                            : EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(partEntity);
+
+                    AddTruckPart(ref result, partEntity, partTruck);
+                }
+            }
+
+            if (result.LayoutParts == 0)
+            {
+                AddTruckPart(ref result, truckEntity, truck);
+            }
+
+            if (result.IsSemi)
+            {
+                result.VehicleKind = "SEMI";
+            }
+            else if (result.Capacity == 4000 ||
+                     result.PrefabName.IndexOf(
+                         "DeliveryVan",
+                         System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                result.VehicleKind = "DELIVERY_VAN";
+            }
+            else
+            {
+                result.VehicleKind = "RIGID_TRUCK";
             }
 
             return result;
+        }
+
+        private void AddTruckPart(
+            ref TruckObservation result,
+            Entity partEntity,
+            Game.Vehicles.DeliveryTruck truck)
+        {
+            result.LayoutParts++;
+            result.State |= truck.m_State;
+
+            if (IsMailResource(truck.m_Resource))
+            {
+                result.Resource |= truck.m_Resource;
+                result.Amount += truck.m_Amount;
+            }
+
+            if (EntityManager.HasComponent<ReturnLoad>(partEntity))
+            {
+                ReturnLoad returnLoad =
+                    EntityManager.GetComponentData<ReturnLoad>(partEntity);
+                if (IsMailResource(returnLoad.m_Resource))
+                {
+                    result.ReturnResource |= returnLoad.m_Resource;
+                    result.ReturnAmount += returnLoad.m_Amount;
+                }
+            }
+
+            if (!EntityManager.HasComponent<PrefabRef>(partEntity))
+            {
+                return;
+            }
+
+            PrefabRef prefabRef =
+                EntityManager.GetComponentData<PrefabRef>(partEntity);
+            Entity prefabEntity = prefabRef.m_Prefab;
+
+            if (result.PrefabName == "unknown" &&
+                m_PrefabSystem.TryGetPrefab(prefabEntity, out PrefabBase prefabBase))
+            {
+                result.PrefabName = prefabBase.name;
+            }
+
+            if (EntityManager.HasComponent<DeliveryTruckData>(prefabEntity))
+            {
+                DeliveryTruckData truckData =
+                    EntityManager.GetComponentData<DeliveryTruckData>(prefabEntity);
+                result.Capacity += truckData.m_CargoCapacity;
+            }
+
+            if (EntityManager.HasComponent<CarTractorData>(prefabEntity))
+            {
+                CarTractorData tractorData =
+                    EntityManager.GetComponentData<CarTractorData>(prefabEntity);
+                result.IsSemi |= tractorData.m_TrailerType == CarTrailerType.Semi;
+            }
+
+            if (EntityManager.HasComponent<CarTrailerData>(prefabEntity))
+            {
+                CarTrailerData trailerData =
+                    EntityManager.GetComponentData<CarTrailerData>(prefabEntity);
+                result.IsSemi |= trailerData.m_TrailerType == CarTrailerType.Semi;
+            }
         }
 
         private RequestObservation ReadRequest(Entity requestEntity)
@@ -388,6 +485,13 @@ namespace MagicMail
                     if (currentTruck.IsTarget)
                     {
                         window.TargetStarts++;
+                        LogTruckEvent(
+                            "TARGET_START",
+                            facilityEntity,
+                            prefabName,
+                            truckEntity,
+                            frame,
+                            currentTruck);
                     }
 
                     continue;
@@ -409,6 +513,13 @@ namespace MagicMail
                 if (!previousTruck.IsTarget && currentTruck.IsTarget)
                 {
                     window.TargetStarts++;
+                    LogTruckEvent(
+                        "TARGET_START",
+                        facilityEntity,
+                        prefabName,
+                        truckEntity,
+                        frame,
+                        currentTruck);
                 }
 
                 TrackAmountDelta(
@@ -455,6 +566,13 @@ namespace MagicMail
                     if (previousTruck.IsTarget)
                     {
                         window.TargetStops++;
+                        LogTruckEvent(
+                            "TARGET_STOP",
+                            facilityEntity,
+                            prefabName,
+                            truckEntity,
+                            frame,
+                            previousTruck);
                     }
 
                     continue;
@@ -476,6 +594,13 @@ namespace MagicMail
                 if (previousTruck.IsTarget && !currentTruck.IsTarget)
                 {
                     window.TargetStops++;
+                    LogTruckEvent(
+                        "TARGET_STOP",
+                        facilityEntity,
+                        prefabName,
+                        truckEntity,
+                        frame,
+                        previousTruck);
                 }
             }
 
@@ -585,9 +710,12 @@ namespace MagicMail
         {
             LogUtils.Info(
                 $"[MAIL SORT TRUCK {action}] frame={frame} facility={facilityEntity} " +
-                $"prefab=\"{prefabName}\" truck={truckEntity} resource={truck.Resource} " +
-                $"amount={truck.Amount} state={truck.State} returnResource={truck.ReturnResource} " +
-                $"returnAmount={truck.ReturnAmount} target={truck.IsTarget}");
+                $"facilityPrefab=\"{prefabName}\" truck={truckEntity} " +
+                $"truckPrefab=\"{truck.PrefabName}\" kind={truck.VehicleKind} " +
+                $"capacity={truck.Capacity} parts={truck.LayoutParts} " +
+                $"resource={truck.Resource} amount={truck.Amount} state={truck.State} " +
+                $"returnResource={truck.ReturnResource} returnAmount={truck.ReturnAmount} " +
+                $"target={truck.IsTarget}");
         }
 
         private void WriteWindow(
@@ -765,13 +893,18 @@ namespace MagicMail
 
         private struct TruckObservation
         {
+            public string PrefabName;
+            public string VehicleKind;
             public Resource Resource;
             public int Amount;
+            public int Capacity;
+            public int LayoutParts;
             public DeliveryTruckFlags State;
             public Resource ReturnResource;
             public int ReturnAmount;
             public bool IsGuest;
             public bool IsTarget;
+            public bool IsSemi;
         }
 
         private struct RequestObservation
