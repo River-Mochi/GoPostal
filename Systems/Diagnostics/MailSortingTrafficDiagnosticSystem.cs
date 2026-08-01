@@ -26,6 +26,7 @@ namespace MagicMail
     using Game.Vehicles;
     using Unity.Collections;
     using Unity.Entities;
+    using DeliveryTruck = Game.Vehicles.DeliveryTruck;
 
     /// <summary>
     /// Samples sorting facilities at the vanilla post-facility update rate.
