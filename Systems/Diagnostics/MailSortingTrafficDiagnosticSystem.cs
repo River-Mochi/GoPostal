@@ -123,14 +123,20 @@ namespace MagicMail
             foreach ((RefRO<Game.Vehicles.DeliveryTruck> truckRef, RefRO<Target> targetRef, Entity truckEntity) in
                      SystemAPI.Query<RefRO<Game.Vehicles.DeliveryTruck>, RefRO<Target>>().WithEntityAccess())
             {
-                Game.Vehicles.DeliveryTruck truck = truckRef.ValueRO;
-                if (!IsMailResource(truck.m_Resource))
+                Entity target = targetRef.ValueRO.m_Target;
+                if (!sortingFacilities.Contains(target))
                 {
                     continue;
                 }
 
-                Entity target = targetRef.ValueRO.m_Target;
-                if (!sortingFacilities.Contains(target))
+                TruckObservation observation = ReadTruck(
+                    truckEntity,
+                    truckRef.ValueRO,
+                    isGuest: false,
+                    isTarget: true);
+
+                // A semi's tractor can be empty while its trailer carries the mail.
+                if ((observation.State & DeliveryTruckFlags.DummyTraffic) != 0)
                 {
                     continue;
                 }
@@ -143,7 +149,7 @@ namespace MagicMail
                     targetedTrucks.Add(target, trucks);
                 }
 
-                trucks[truckEntity] = ReadTruck(truckEntity, truck, isGuest: false, isTarget: true);
+                trucks[truckEntity] = observation;
             }
 
             uint frame = m_SimulationSystem.frameIndex;
@@ -255,13 +261,14 @@ namespace MagicMail
 
                     Game.Vehicles.DeliveryTruck truck =
                         EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(truckEntity);
-                    if (!IsMailResource(truck.m_Resource))
+                    TruckObservation guestObservation =
+                        ReadTruck(truckEntity, truck, isGuest: true, isTarget: false);
+
+                    // Read the whole layout before deciding whether this is usable evidence.
+                    if ((guestObservation.State & DeliveryTruckFlags.DummyTraffic) != 0)
                     {
                         continue;
                     }
-
-                    TruckObservation guestObservation =
-                        ReadTruck(truckEntity, truck, isGuest: true, isTarget: false);
 
                     if (observation.Trucks.TryGetValue(
                             truckEntity,
