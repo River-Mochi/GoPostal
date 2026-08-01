@@ -10,7 +10,7 @@
 // Purpose: DEBUG-only sorting-facility truck, request, and resource evidence.
 
 #if DEBUG
-#nullable enable
+
 namespace MagicMail
 {
     using System.Collections.Generic;
@@ -39,6 +39,7 @@ namespace MagicMail
 
         private readonly Dictionary<Entity, FacilityObservation> m_Previous = new();
         private readonly Dictionary<Entity, FacilityWindow> m_Windows = new();
+        private readonly Dictionary<Entity, TruckObservation> m_EmptyTargetMap = new();
         private readonly List<Entity> m_RemoveFacilities = new();
         private readonly StringBuilder m_Report = new(2048);
 
@@ -99,12 +100,6 @@ namespace MagicMail
 
         protected override void OnUpdate()
         {
-            GameManager? gameManager = GameManager.instance;
-            if (gameManager == null || !gameManager.gameMode.IsGame())
-            {
-                return;
-            }
-
             using NativeArray<Entity> facilities = m_FacilityQuery.ToEntityArray(Allocator.Temp);
             var sortingFacilities = new HashSet<Entity>();
             var prefabNames = new Dictionary<Entity, string>();
@@ -142,7 +137,7 @@ namespace MagicMail
 
                 if (!targetedTrucks.TryGetValue(
                         target,
-                        out Dictionary<Entity, TruckObservation>? trucks))
+                        out Dictionary<Entity, TruckObservation> trucks))
                 {
                     trucks = new Dictionary<Entity, TruckObservation>();
                     targetedTrucks.Add(target, trucks);
@@ -154,17 +149,20 @@ namespace MagicMail
             uint frame = m_SimulationSystem.frameIndex;
             foreach (Entity facilityEntity in sortingFacilities)
             {
+                if (!targetedTrucks.TryGetValue(
+                        facilityEntity,
+                        out Dictionary<Entity, TruckObservation> targetMap))
+                {
+                    targetMap = m_EmptyTargetMap;
+                }
+
                 FacilityObservation current = ReadFacility(
                     facilityEntity,
-                    targetedTrucks.TryGetValue(
-                        facilityEntity,
-                        out Dictionary<Entity, TruckObservation>? targetMap)
-                        ? targetMap
-                        : null);
+                    targetMap);
 
                 if (!m_Previous.TryGetValue(
                         facilityEntity,
-                        out FacilityObservation? previous))
+                        out FacilityObservation previous))
                 {
                     m_Previous[facilityEntity] = current;
                     m_Windows[facilityEntity] = new FacilityWindow(frame, current);
@@ -173,7 +171,7 @@ namespace MagicMail
 
                 if (!m_Windows.TryGetValue(
                         facilityEntity,
-                        out FacilityWindow? window))
+                        out FacilityWindow window))
                 {
                     window = new FacilityWindow(frame, previous);
                     m_Windows[facilityEntity] = window;
@@ -220,7 +218,7 @@ namespace MagicMail
 
         private FacilityObservation ReadFacility(
             Entity facilityEntity,
-            Dictionary<Entity, TruckObservation>? targetMap)
+            Dictionary<Entity, TruckObservation> targetMap)
         {
             DynamicBuffer<Resources> resources =
                 EntityManager.GetBuffer<Resources>(facilityEntity, true);
@@ -237,12 +235,9 @@ namespace MagicMail
                 ReceiveRequest = ReadRequest(facility.m_MailReceiveRequest),
             };
 
-            if (targetMap != null)
+            foreach (KeyValuePair<Entity, TruckObservation> pair in targetMap)
             {
-                foreach (KeyValuePair<Entity, TruckObservation> pair in targetMap)
-                {
-                    observation.Trucks[pair.Key] = pair.Value;
-                }
+                observation.Trucks[pair.Key] = pair.Value;
             }
 
             if (EntityManager.HasBuffer<GuestVehicle>(facilityEntity))
@@ -803,5 +798,5 @@ namespace MagicMail
         }
     }
 }
-#nullable restore
+
 #endif
