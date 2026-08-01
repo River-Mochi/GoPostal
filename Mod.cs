@@ -32,6 +32,12 @@ namespace MagicMail
         public const string ModName = "Magic Mail";
         public const string ModTag = "[MM]";
 
+#if DEBUG
+        private const string kBuildType = "DEBUG";
+#else
+        private const string kBuildType = "RELEASE";
+#endif
+
         public static readonly string ModVersion =
             Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
@@ -60,7 +66,7 @@ namespace MagicMail
             if (!s_BannerLogged)
             {
                 s_BannerLogged = true;
-                LogUtils.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
+                LogUtils.Info($"{ModName} {ModTag} v{ModVersion} [{kBuildType}] OnLoad");
             }
 
             GameManager? gameManager = GameManager.instance;
