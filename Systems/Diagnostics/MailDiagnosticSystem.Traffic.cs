@@ -7,7 +7,7 @@
 // ================= </copyright> ======================
 
 // File: Systems/Diagnostics/MailDiagnosticSystem.Traffic.cs
-// Purpose: summarizes pending requests, post vans, and mail semi trucks.
+// Purpose: summarizes pending requests, post vans, and mail delivery trucks.
 
 #if DEBUG
 namespace MagicMail
@@ -146,7 +146,7 @@ namespace MagicMail
                 $"pathfinding={vanPathfinding} failed={vanFailed} reversed={vanReversed}");
 
             AddLine(
-                $"[MAIL REQUEST SEMI] total={transferRequests} deliverToFacility={transferDeliver} " +
+                $"[MAIL REQUEST TRUCK] total={transferRequests} deliverToFacility={transferDeliver} " +
                 $"receiveFromFacility={transferReceive} requireTransport={transferRequireTransport} " +
                 $"local={transferLocal} unsorted={transferUnsorted} outgoing={transferOutgoing} " +
                 $"amount={transferAmount} dispatched={transferDispatched} " +
@@ -223,20 +223,20 @@ namespace MagicMail
                 }
             }
 
-            int mailSemis = 0;
-            int localSemis = 0;
-            int unsortedSemis = 0;
-            int outgoingSemis = 0;
-            int loadedSemis = 0;
-            int returningSemis = 0;
-            int storageTransferSemis = 0;
-            int postalOwnedSemis = 0;
-            int outsideOrOtherOwnedSemis = 0;
+            int mailTrucks = 0;
+            int localTrucks = 0;
+            int unsortedTrucks = 0;
+            int outgoingTrucks = 0;
+            int loadedTrucks = 0;
+            int returningTrucks = 0;
+            int storageTransferTrucks = 0;
+            int postalOwnedTrucks = 0;
+            int outsideOrOtherOwnedTrucks = 0;
             int returnLoads = 0;
-            int minSemiCapacity = int.MaxValue;
-            int maxSemiCapacity = 0;
-            long semiLoad = 0;
-            long semiReturnLoad = 0;
+            int minTruckCapacity = int.MaxValue;
+            int maxTruckCapacity = 0;
+            long truckLoad = 0;
+            long truckReturnLoad = 0;
 
             foreach ((RefRO<Game.Vehicles.DeliveryTruck> truckRef, Entity entity) in SystemAPI
                          .Query<RefRO<Game.Vehicles.DeliveryTruck>>()
@@ -248,37 +248,37 @@ namespace MagicMail
                     continue;
                 }
 
-                mailSemis++;
-                semiLoad += truck.m_Amount;
+                mailTrucks++;
+                truckLoad += truck.m_Amount;
 
                 if ((truck.m_Resource & Resource.LocalMail) != Resource.NoResource)
                 {
-                    localSemis++;
+                    localTrucks++;
                 }
 
                 if ((truck.m_Resource & Resource.UnsortedMail) != Resource.NoResource)
                 {
-                    unsortedSemis++;
+                    unsortedTrucks++;
                 }
 
                 if ((truck.m_Resource & Resource.OutgoingMail) != Resource.NoResource)
                 {
-                    outgoingSemis++;
+                    outgoingTrucks++;
                 }
 
                 if ((truck.m_State & Game.Vehicles.DeliveryTruckFlags.Loaded) != 0)
                 {
-                    loadedSemis++;
+                    loadedTrucks++;
                 }
 
                 if ((truck.m_State & Game.Vehicles.DeliveryTruckFlags.Returning) != 0)
                 {
-                    returningSemis++;
+                    returningTrucks++;
                 }
 
                 if ((truck.m_State & Game.Vehicles.DeliveryTruckFlags.StorageTransfer) != 0)
                 {
-                    storageTransferSemis++;
+                    storageTransferTrucks++;
                 }
 
                 if (EntityManager.HasComponent<Game.Prefabs.PrefabRef>(entity))
@@ -290,8 +290,8 @@ namespace MagicMail
                     {
                         Game.Prefabs.DeliveryTruckData truckData =
                             EntityManager.GetComponentData<Game.Prefabs.DeliveryTruckData>(prefabRef.m_Prefab);
-                        minSemiCapacity = System.Math.Min(minSemiCapacity, truckData.m_CargoCapacity);
-                        maxSemiCapacity = System.Math.Max(maxSemiCapacity, truckData.m_CargoCapacity);
+                        minTruckCapacity = System.Math.Min(minTruckCapacity, truckData.m_CargoCapacity);
+                        maxTruckCapacity = System.Math.Max(maxTruckCapacity, truckData.m_CargoCapacity);
                     }
                 }
 
@@ -301,16 +301,16 @@ namespace MagicMail
                         EntityManager.GetComponentData<Game.Common.Owner>(entity);
                     if (EntityManager.HasComponent<Game.Buildings.PostFacility>(owner.m_Owner))
                     {
-                        postalOwnedSemis++;
+                        postalOwnedTrucks++;
                     }
                     else
                     {
-                        outsideOrOtherOwnedSemis++;
+                        outsideOrOtherOwnedTrucks++;
                     }
                 }
                 else
                 {
-                    outsideOrOtherOwnedSemis++;
+                    outsideOrOtherOwnedTrucks++;
                 }
 
                 if (EntityManager.HasComponent<Game.Vehicles.ReturnLoad>(entity))
@@ -320,7 +320,7 @@ namespace MagicMail
                     if (IsMailResource(returnLoad.m_Resource))
                     {
                         returnLoads++;
-                        semiReturnLoad += returnLoad.m_Amount;
+                        truckReturnLoad += returnLoad.m_Amount;
                     }
                 }
             }
@@ -334,13 +334,13 @@ namespace MagicMail
                 $"collectedLoad={vanCollectedLoad}");
 
             AddLine(
-                $"[MAIL VEHICLE SEMI] total={mailSemis} local={localSemis} unsorted={unsortedSemis} " +
-                $"outgoing={outgoingSemis} loaded={loadedSemis} returning={returningSemis} " +
-                $"storageTransfer={storageTransferSemis} " +
-                $"postalOwned={postalOwnedSemis} outsideOrOtherOwned={outsideOrOtherOwnedSemis} " +
-                $"capacityMin={(minSemiCapacity == int.MaxValue ? 0 : minSemiCapacity)} " +
-                $"capacityMax={maxSemiCapacity} load={semiLoad} returnLoads={returnLoads} " +
-                $"returnAmount={semiReturnLoad}");
+                $"[MAIL VEHICLE TRUCK] total={mailTrucks} local={localTrucks} " +
+                $"unsorted={unsortedTrucks} outgoing={outgoingTrucks} loaded={loadedTrucks} " +
+                $"returning={returningTrucks} storageTransfer={storageTransferTrucks} " +
+                $"postalOwned={postalOwnedTrucks} outsideOrOtherOwned={outsideOrOtherOwnedTrucks} " +
+                $"capacityMin={(minTruckCapacity == int.MaxValue ? 0 : minTruckCapacity)} " +
+                $"capacityMax={maxTruckCapacity} load={truckLoad} returnLoads={returnLoads} " +
+                $"returnAmount={truckReturnLoad}");
         }
 
         private static bool IsMailResource(Resource resource)
