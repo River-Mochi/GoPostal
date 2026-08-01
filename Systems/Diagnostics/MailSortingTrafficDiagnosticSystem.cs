@@ -10,6 +10,7 @@
 // Purpose: DEBUG-only sorting-facility truck, request, and resource evidence.
 
 #if DEBUG
+#nullable enable
 namespace MagicMail
 {
     using System.Collections.Generic;
@@ -26,7 +27,6 @@ namespace MagicMail
     using Game.Vehicles;
     using Unity.Collections;
     using Unity.Entities;
-    using DeliveryTruck = Game.Vehicles.DeliveryTruck;
 
     /// <summary>
     /// Samples sorting facilities at the vanilla post-facility update rate.
@@ -75,7 +75,7 @@ namespace MagicMail
                 {
                     ComponentType.ReadOnly<Destroyed>(),
                     ComponentType.ReadOnly<Deleted>(),
-                    ComponentType.ReadOnly<Temp>(),
+                    ComponentType.ReadOnly<Game.Tools.Temp>(),
                 },
             });
 
@@ -125,10 +125,10 @@ namespace MagicMail
             }
 
             var targetedTrucks = new Dictionary<Entity, Dictionary<Entity, TruckObservation>>();
-            foreach ((RefRO<DeliveryTruck> truckRef, RefRO<Target> targetRef, Entity truckEntity) in
-                     SystemAPI.Query<RefRO<DeliveryTruck>, RefRO<Target>>().WithEntityAccess())
+            foreach ((RefRO<Game.Vehicles.DeliveryTruck> truckRef, RefRO<Target> targetRef, Entity truckEntity) in
+                     SystemAPI.Query<RefRO<Game.Vehicles.DeliveryTruck>, RefRO<Target>>().WithEntityAccess())
             {
-                DeliveryTruck truck = truckRef.ValueRO;
+                Game.Vehicles.DeliveryTruck truck = truckRef.ValueRO;
                 if (!IsMailResource(truck.m_Resource))
                 {
                     continue;
@@ -253,13 +253,13 @@ namespace MagicMail
                 foreach (GuestVehicle guest in guests)
                 {
                     Entity truckEntity = guest.m_Vehicle;
-                    if (!EntityManager.HasComponent<DeliveryTruck>(truckEntity))
+                    if (!EntityManager.HasComponent<Game.Vehicles.DeliveryTruck>(truckEntity))
                     {
                         continue;
                     }
 
-                    DeliveryTruck truck =
-                        EntityManager.GetComponentData<DeliveryTruck>(truckEntity);
+                    Game.Vehicles.DeliveryTruck truck =
+                        EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(truckEntity);
                     if (!IsMailResource(truck.m_Resource))
                     {
                         continue;
@@ -284,7 +284,7 @@ namespace MagicMail
 
         private TruckObservation ReadTruck(
             Entity truckEntity,
-            DeliveryTruck truck,
+            Game.Vehicles.DeliveryTruck truck,
             bool isGuest,
             bool isTarget)
         {
@@ -803,4 +803,5 @@ namespace MagicMail
         }
     }
 }
+#nullable restore
 #endif
