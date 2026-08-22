@@ -7,52 +7,56 @@
 <ShortDescription Value="Post office fixes, mail tweaks, and capacity controls." />
 <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 <LongDescription>
-### Magic Mail + Fixes
-- Increase all postal van limits and capacity.
-- Control post offices, sorting facilities, and postal trucks.
-- Also provides some optional fixes for the mail system.
+    ### Magic Mail + Fixes
+    - Adjust all postal van limits and capacity.
+    - Control post offices, sorting facilities, and postal trucks.
+    - Also provides some optional fixes for the mail system.
 
-### How to Use
+    ### How to Use
 
-- **Quick Start Button**  1-Click to apply all recommended settings.
-- not sure what to do? Just use this button, done - play with a better working mail system.
+    - **Quick Start Button**  1-Click to apply all recommended settings.
+    - not sure what to do? Just use this button, done - play with a better working mail system.
+    - don't forget to Like 👍(top right)
 
-### Power Users
-- Adjust post-van mail load multiplier, fleet size, and post-truck fleet size.
-- Boost speed and storage capacity for sorting facilities.
-- Simple city-wide mail statistics and recent activity in the Status tab.
-- All sliders and toggles are optional and can be reset to game defaults (vanilla).
+    ### Power Users
+    - Adjust post-van mail load multiplier, number of postal vans, or mail semi trucks.
+    - Boost speed and storage capacity for sorting facilities.
+    - Simple city-wide mail statistics and recent activity in the Status tab.
+    - All items are Optional and can be reset to game defaults (vanilla).
 
-### Fixes for mail issues
-1. **auto Fix** low amount of local mail by topping up mail when storage drops below a certain amount (you can choose).
-2. **auto Fix** mail overflow by trimming overfilled mail buffers so they do not remain blocked forever (for PO and Sorters).
-3. **auto Fix** low amount of unsorted mail at sorting facilities to keep the sorting active.
-Currently, cargo shipyards could be shipping out most of the unsorted mail leaving very little for local sorting (reference below).
-4. Fixes are workaround solutions until Pdx/IFS fixes the mail transfer process.
+    ### Fixes for mail issues - all optional,  mod could just be used just for capacity if preferred.
 
+    1. **auto Fix** low amount of local mail by topping up mail when storage drops below a certain amount (you can choose).
+    2. **auto Fix** mail overflow by trimming overfilled mail buffers so they do not remain blocked forever (for PO and Sorters).
+    3. **auto Fix** low amount of unsorted mail at sorting facilities to keep the sorting active.
+    Currently, cargo shipyards could be shipping out most of the unsorted mail leaving very little for local sorting (reference below).
+    4. Fixes are workaround solutions until Pdx/IFS fixes the mail transfer process.
 
-### 12+ Languages supported
-Hello, Bonjour, Hallo, Hola, Ciao, 你好, 안녕하세요, Olá, 你好, こんにちは, Cześć, สวัสดี, Xin chào, Merhaba, Привіт
+    ### 12+ Languages supported
 
-### Compatibility
-- Safe to remove at any time; postal facilities will fall back to the game's default.
-- Does not use Harmony or Reflection, less likely to break with game updates.
+    Hello, Bonjour, Hallo, Hola, Ciao, 你好, 안녕하세요, Olá, 你好, こんにちは, Cześć, สวัสดี, Xin chào, Merhaba, Привіт
 
-### Support and Feedback
-- If the mod helps you, give it a Like :)
-- Report issues on Github link, Forum link, or Discord.
+    ### Compatibility
+    - Safe to remove any time; postal facilities will fall back to the game's default.
+    - Does not use Harmony, less likely to break with game updates.
 
-### Credits
-
-- River-Mochi - author
-- BugsyG - testing
-- Inspired by Infixo's original Postal Helper
+    ### Support and Feedback
+    - If the mod helps you, give it a Like (top right) :)
+    - feedback on Github link, or Discord (icons on the right).
+    - Be aware of copies of mods where no link is given to Github source code, so anything could be in them. The Github link is a simple safety check.
 
 
-Reference: some of the known mail problems acknowledged by the game: https://www.paradoxinteractive.com/games/cities-skylines-ii/news/bridges-bikes-bugfixes
-- There are no patch notes after this Sept. 2025 diary that the postal fixes were ever done and then Colossal left.
+    ### Credits
 
-tags: unreliable mail service, broken mail bug fixes, post van, post truck, delivery
+    - River-Mochi - author
+    - BugsyG - testing
+    - Inspired by Infixo's original Postal Helper
+
+
+    Reference: some of the known mail problems acknowledged by the game: https://www.paradoxinteractive.com/games/cities-skylines-ii/news/bridges-bikes-bugfixes
+    - There are no patch notes after this Sept. 2025 diary that the postal fixes were ever done and then Colossal left.
+
+    tags: postal helper, unreliable mail service, broken mail bug fixes, post van limit, post truck, delivery speed, postal fixer
 
 </LongDescription>
 <!--Thumbnail-->
@@ -61,10 +65,7 @@ tags: unreliable mail service, broken mail bug fixes, post van, post truck, deli
 <Screenshot Value="Properties/Images/20-image-mm-EN.jpg" />
 <Screenshot Value="Properties/Images/30-image-mm-EN.jpg" />
 <Screenshot Value="Properties/Images/35-image-mm-capacities.jpg" />
-<Screenshot Value="Properties/Images/40-image-mm-EN.jpg" />
-<Screenshot Value="Properties/Images/50-image-mm-EN.jpg" />
 <Screenshot Value="Properties/Images/70-image-mm-ZH_CN.jpg" />
-<Screenshot Value="Properties/Images/80-image-Languages.jpg" />
 <!--Tag, can be set multiple times-->
 <Tag Value="Code Mod" />
 <!--Link to the forum post where the mod can be discussed-->
