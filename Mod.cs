@@ -102,6 +102,8 @@ namespace MagicMail
                     localizationManager.AddSource("zh-HANT", new LocaleZH_HANT(setting));
                     localizationManager.AddSource("th-TH", new LocaleTH(setting));
                     localizationManager.AddSource("vi-VN", new LocaleVI(setting));
+                    localizationManager.AddSource("tr-TR", new LocaleTR(setting));
+                    localizationManager.AddSource("uk-UA", new LocaleUK(setting));
                 }
                 catch (Exception ex)
                 {

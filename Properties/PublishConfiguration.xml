@@ -76,11 +76,10 @@ tags: unreliable mail service, broken mail bug fixes, post van, post truck, deli
   <Dependency Id="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>
-- Add European Portuguese translation
-- Post-van mail capacity load limit now higher
-- Post-van and post-truck fleet limits now higher
-- Sorting facility storage percetage now a higher limit
-- Internal refactor and cleanup
+- Added Ukrainian language.
+- Added Turkish language.
+- update all translation files.
+- Internal refactor, cleanup, optional debug info of postal status/behavior.
 </ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="github" Url="https://github.com/River-Mochi/MagicMail" />
