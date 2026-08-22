@@ -36,7 +36,7 @@ namespace MagicMail
         private MailAccumulationSystem? m_MailAccumulationSystem;
         private PrefabSystem m_PrefabSystem = null!;
         private SimulationSystem m_SimulationSystem = null!;
-        private readonly StringBuilder m_Report = new(4096);
+        private readonly StringBuilder m_Report = new(8192);
         private int m_SnapshotNumber;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase)
@@ -84,6 +84,7 @@ namespace MagicMail
                 (purpose == Purpose.NewGame || purpose == Purpose.LoadGame))
             {
                 m_SnapshotNumber = 0;
+                ResetProducerRequestEvidence();
                 LogUtils.Info("[MAIL DIAG] City loaded; snapshots will begin after simulation starts.");
             }
         }
@@ -171,6 +172,8 @@ namespace MagicMail
             long sendingBacklog = 0;
             long receivingBacklog = 0;
 
+            BeginProducerRequestEvidence();
+
             foreach ((RefRO<Game.Buildings.MailProducer> producerRef, Entity entity) in SystemAPI
                          .Query<RefRO<Game.Buildings.MailProducer>>()
                          .WithNone<Destroyed, Deleted, Temp>()
@@ -204,6 +207,7 @@ namespace MagicMail
                     if (!EntityManager.Exists(producer.m_MailRequest))
                     {
                         staleRequestRefs++;
+                        TrackMissingProducerRequest(entity, producer);
                     }
                 }
             }
@@ -213,6 +217,8 @@ namespace MagicMail
                 $"producers={producerCount} sendBacklog={sendingBacklog} receiveBacklog={receivingBacklog} " +
                 $"sendBuildings={sendingBuildings} receiveBuildings={receivingBuildings} " +
                 $"requestRefs={requestRefs} staleRefs={staleRequestRefs} deliveredFlags={mailDeliveredFlags}");
+
+            EndProducerRequestEvidence();
         }
 
         private static string GetPresetName(Setting settings)

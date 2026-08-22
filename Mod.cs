@@ -32,6 +32,12 @@ namespace MagicMail
         public const string ModName = "Magic Mail";
         public const string ModTag = "[MM]";
 
+#if DEBUG
+        private const string kBuildType = "DEBUG";
+#else
+        private const string kBuildType = "RELEASE";
+#endif
+
         public static readonly string ModVersion =
             Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
@@ -60,7 +66,7 @@ namespace MagicMail
             if (!s_BannerLogged)
             {
                 s_BannerLogged = true;
-                LogUtils.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
+                LogUtils.Info($"{ModName} {ModTag} v{ModVersion} [{kBuildType}] OnLoad");
             }
 
             GameManager? gameManager = GameManager.instance;
@@ -96,6 +102,8 @@ namespace MagicMail
                     localizationManager.AddSource("zh-HANT", new LocaleZH_HANT(setting));
                     localizationManager.AddSource("th-TH", new LocaleTH(setting));
                     localizationManager.AddSource("vi-VN", new LocaleVI(setting));
+                    localizationManager.AddSource("tr-TR", new LocaleTR(setting));
+                    localizationManager.AddSource("uk-UA", new LocaleUK(setting));
                 }
                 catch (Exception ex)
                 {
@@ -117,7 +125,11 @@ namespace MagicMail
                 SystemUpdatePhase.GameSimulation);
 
 #if DEBUG
-            // Read-only mail snapshots for controlled test builds only.
+            // Fast read-only sampler catches sorting truck visits between main snapshots.
+            updateSystem.UpdateAfter<MailSortingTrafficDiagnosticSystem>(
+                SystemUpdatePhase.GameSimulation);
+
+            // Full read-only snapshots every 90 in-game minutes.
             updateSystem.UpdateAfter<MailDiagnosticSystem>(
                 SystemUpdatePhase.GameSimulation);
 #endif

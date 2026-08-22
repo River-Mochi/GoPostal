@@ -27,12 +27,12 @@ namespace MagicMail
         {
             public int OwnedVans;
             public int ParkedVans;
-            public int OwnedMailSemis;
-            public int GuestMailSemis;
-            public long OwnedSemiLoad;
-            public long GuestSemiLoad;
+            public int OwnedMailTrucks;
+            public int GuestMailTrucks;
+            public long OwnedTruckLoad;
+            public long GuestTruckLoad;
             public int VanDispatches;
-            public int SemiDispatches;
+            public int TruckDispatches;
             public int OtherDispatches;
         }
 
@@ -92,7 +92,7 @@ namespace MagicMail
                     $"upgrades={upgradeCount}[{upgradeNames}] " +
                     $"prefabCap={prefabData.m_MailCapacity} effectiveCap={effectiveData.m_MailCapacity} " +
                     $"prefabSort={prefabData.m_SortingRate} effectiveSort={effectiveData.m_SortingRate} " +
-                    $"vans={effectiveData.m_PostVanCapacity} semis={effectiveData.m_PostTruckCapacity}");
+                    $"vans={effectiveData.m_PostVanCapacity} trucks={effectiveData.m_PostTruckCapacity}");
 
                 AddLine(
                     $"[MAIL FAC STORE] entity={entity} L={local} U={unsorted} O={outgoing} " +
@@ -104,10 +104,10 @@ namespace MagicMail
                     $"acceptPriority={facility.m_AcceptMailPriority:0.000} " +
                     $"deliverPriority={facility.m_DeliverMailPriority:0.000} " +
                     $"ownedVans={traffic.OwnedVans} activeVans={traffic.OwnedVans - traffic.ParkedVans} " +
-                    $"parkedVans={traffic.ParkedVans} ownedSemis={traffic.OwnedMailSemis} " +
-                    $"guestSemis={traffic.GuestMailSemis} ownedSemiLoad={traffic.OwnedSemiLoad} " +
-                    $"guestSemiLoad={traffic.GuestSemiLoad} dispatchVan={traffic.VanDispatches} " +
-                    $"dispatchSemi={traffic.SemiDispatches} dispatchOther={traffic.OtherDispatches}");
+                    $"parkedVans={traffic.ParkedVans} ownedTrucks={traffic.OwnedMailTrucks} " +
+                    $"guestTrucks={traffic.GuestMailTrucks} ownedTruckLoad={traffic.OwnedTruckLoad} " +
+                    $"guestTruckLoad={traffic.GuestTruckLoad} dispatchVan={traffic.VanDispatches} " +
+                    $"dispatchTruck={traffic.TruckDispatches} dispatchOther={traffic.OtherDispatches}");
 
                 AddLine(
                     $"[MAIL FAC REQUEST] entity={entity} " +
@@ -143,8 +143,8 @@ namespace MagicMail
                             EntityManager.GetComponentData<Game.Vehicles.DeliveryTruck>(vehicle);
                         if (IsMailResource(truck.m_Resource))
                         {
-                            result.OwnedMailSemis++;
-                            result.OwnedSemiLoad += truck.m_Amount;
+                            result.OwnedMailTrucks++;
+                            result.OwnedTruckLoad += truck.m_Amount;
                         }
                     }
                 }
@@ -164,8 +164,8 @@ namespace MagicMail
                                 guestVehicle.m_Vehicle);
                         if (IsMailResource(truck.m_Resource))
                         {
-                            result.GuestMailSemis++;
-                            result.GuestSemiLoad += truck.m_Amount;
+                            result.GuestMailTrucks++;
+                            result.GuestTruckLoad += truck.m_Amount;
                         }
                     }
                 }
@@ -184,7 +184,7 @@ namespace MagicMail
                     }
                     else if (EntityManager.HasComponent<MailTransferRequest>(dispatch.m_Request))
                     {
-                        result.SemiDispatches++;
+                        result.TruckDispatches++;
                     }
                     else
                     {
